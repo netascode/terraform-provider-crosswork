@@ -1,0 +1,75 @@
+---
+# hand-written:
+#   resource: create, read, update, delete
+#   data source: - (no_data_source)
+#   model: -
+#   helpers: assign_devices_to_access_group_logic.go
+#   tests: assign_devices_to_access_group_members_test.go
+#   why: a device joins an access group by a copy from the location group that holds it and leaves by a PUT of the members
+name: Assign Devices To Access Group
+rest_endpoint: /crosswork/grouping/v1/grouping/group/member/copy
+no_data_source: true
+get_no_id: true
+id_from_attribute: true
+# Needs existing devices, so there is no minimum test.
+skip_minimum_test: true
+doc_category: Devices
+res_description: This resource makes a list of devices that are members of a device access group.
+attributes:
+  - model_name: newGroupUuid
+    tf_name: group_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Id of the device access group
+    example: 7bba02f0-fa4f-4622-af47-3ca107237f93
+    test_value: crosswork_device_access_groups.assign_test.id
+  - model_name: references
+    tf_name: devices
+    type: Set
+    element_type: String
+    mandatory: true
+    description: Inventory ids of the devices that are members of the group; an empty list removes them all
+    example: build-router-1
+    test_value: '[crosswork_network_devices.assign_test.id]'
+
+test_prerequisites: |
+  data "crosswork_groupings" "assign_root" {
+    classifier = "DeviceAccess"
+  }
+
+  resource "crosswork_device_access_groups" "assign_test" {
+    name        = "cwtest-gen-assign-group"
+    parent_uuid = [for group in data.crosswork_groupings.assign_root.items : group.id if group.discovery_type == "StaticSystem" && group.subgroups_allowed][0]
+  }
+
+  resource "crosswork_credential_profiles" "assign_test" {
+    profile = "cwtest-gen-assign-profile"
+    credentials = [
+      {
+        type      = "ROBOT_USERPASS_SSH"
+        user_name = "cwtest"
+        password  = "Cwtest-Password-1"
+      }
+    ]
+  }
+
+  resource "crosswork_network_devices" "assign_test" {
+    name               = "cwtest-gen-assign-device"
+    host_name          = "cwtest-gen-assign-device"
+    credential_profile = crosswork_credential_profiles.assign_test.id
+    software_type      = "IOS XR"
+    capabilities       = ["YANG_CLI"]
+    connectivity = [{
+      protocol      = "ROBOT_MSVC_TRANS_SSH"
+      ip_address    = "192.0.2.241"
+      prefix_length = 24
+      port          = 22
+    }]
+
+    # Crosswork can move the admin state itself: an embedded data gateway pool attaches a new device and brings it up
+    lifecycle {
+      ignore_changes = [admin_state]
+    }
+  }

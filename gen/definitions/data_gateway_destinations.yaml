@@ -1,0 +1,175 @@
+---
+# hand-written:
+#   resource: create, read, update, delete and import (the manually managed sections), and the schema (system_defined is computed only)
+#   data source: whole file (data_source_crosswork_data_gateway_destinations.go)
+#   model: toBody, fromBody, updateFromBody
+#   helpers: data_gateway_destinations_logic.go
+#   tests: data_gateway_destinations_logic_test.go, data_gateway_destinations_stub_test.go, data_gateway_destinations_variants_test.go, data_source_crosswork_data_gateway_destinations_test.go, data_source_crosswork_data_gateway_destinations_unit_test.go
+#   why: the body is a flat map of upper-case text properties (the numbers are strings, the collector overrides are keys like CLI.LINGER_MS_CONFIG), the id is found by name after the create, and every change is a job that reports a failure inside HTTP 200
+name: Data Gateway Destinations
+rest_endpoint: /crosswork/dg-manager/v1/destinations
+get_rest_endpoint: /crosswork/dg-manager/v1/destinations/query
+get_body: '{"limit":1000,"filter":{}}'
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+no_data_source: true
+mutex: true
+# The acceptance test needs a cluster with Crosswork Data Gateway, and the destination of the test is never used by a collection job.
+skip_minimum_test: true
+doc_category: Data Gateway
+res_description: This resource can manage a data destination of the Crosswork Data Gateways.
+ds_description: This data source can read a data destination of the Crosswork Data Gateways by its name or its id, including the system-defined destinations.
+attributes:
+  - model_name: name
+    type: String
+    requires_replace: true
+    mandatory: true
+    string_patterns: ['^[A-Za-z0-9_.-]+$']
+    description: Destination name, made of letters, digits, underscores, hyphens and dots
+    example: cwtest-gen-destination
+  - model_name: data_source
+    type: String
+    requires_replace: true
+    mandatory: true
+    enum_values: [data-gateway, application]
+    description: Source of the data sent to the destination
+    example: data-gateway
+  - model_name: server_type
+    type: String
+    requires_replace: true
+    mandatory: true
+    enum_values: [kafka, grpc]
+    description: Type of the destination server
+    example: kafka
+  - model_name: encoding
+    type: String
+    enum_values: [gpbkv, json]
+    description: Encoding of the data, for the data source `data-gateway`
+    example: gpbkv
+  - model_name: compression_method
+    type: String
+    mandatory: true
+    enum_values: [snappy, gzip, zstd, none, deflate]
+    description: Compression of the data, `snappy`, `gzip`, `zstd` or `none` for Kafka and `gzip`, `deflate` or `snappy` for gRPC
+    example: snappy
+  - model_name: dispatch_type
+    type: String
+    enum_values: [stream, unary]
+    exclude_test: true
+    description: Dispatch type of a gRPC destination
+    example: stream
+  - model_name: max_message_size
+    type: Int64
+    min_int: 1000000
+    max_int: 100000000
+    description: Maximum message size of a Kafka destination in bytes
+    example: 100000000
+  - model_name: buffer_memory
+    type: Int64
+    min_int: 52428800
+    max_int: 314572800
+    description: Buffer memory of a Kafka destination in bytes
+    example: 52428800
+  - model_name: batch_size
+    type: Int64
+    min_int: 16384
+    max_int: 52428800
+    description: Batch size of a Kafka destination in bytes
+    example: 1048576
+  - model_name: linger_time
+    type: Int64
+    min_int: 0
+    max_int: 5000
+    description: Linger time of a Kafka destination in milliseconds
+    example: 2000
+  - model_name: request_timeout
+    type: Int64
+    min_int: 30
+    max_int: 60
+    description: Request timeout of a Kafka destination in seconds
+    example: 30
+  - model_name: collectors
+    type: List
+    description: Values of a Kafka destination that replace the global ones for one collector
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        enum_values: [CLI, GNMI, MDT, SNMP, SYSLOG]
+        description: Collector
+        example: CLI
+      - model_name: buffer_memory
+        type: Int64
+        min_int: 52428800
+        max_int: 314572800
+        description: Buffer memory in bytes
+        example: 104857600
+      - model_name: batch_size
+        type: Int64
+        min_int: 16384
+        max_int: 52428800
+        description: Batch size in bytes
+        example: 500000
+      - model_name: linger_time
+        type: Int64
+        min_int: 0
+        max_int: 5000
+        description: Linger time in milliseconds
+        example: 1000
+      - model_name: request_timeout
+        type: Int64
+        min_int: 30
+        max_int: 60
+        description: Request timeout in seconds
+        example: 45
+  - model_name: connections
+    type: List
+    mandatory: true
+    min_list: 1
+    description: Addresses of the destination server, each an IPv4 address with a prefix length or a host name with a domain name
+    attributes:
+      - model_name: address
+        type: String
+        description: IPv4 address
+        example: 10.14.0.150
+      - model_name: prefix_length
+        type: Int64
+        min_int: 1
+        max_int: 32
+        description: Prefix length of the IPv4 address
+        example: 20
+      - model_name: host_name
+        type: String
+        exclude_test: true
+        description: Host name
+        example: kafka1
+      - model_name: domain_name
+        type: String
+        exclude_test: true
+        description: Domain name
+        example: example.com
+      - model_name: port
+        type: Int64
+        mandatory: true
+        min_int: 1024
+        max_int: 65535
+        description: Port of the server
+        example: 9192
+  - model_name: secure
+    type: Bool
+    description: Enable secure communication
+    example: false
+  - model_name: auth_type
+    type: String
+    enum_values: [mutual, server]
+    exclude_test: true
+    description: Authentication of the secure communication; a gRPC destination takes only `mutual`
+    example: mutual
+  - model_name: system_defined
+    type: Bool
+    computed: true
+    exclude_test: true
+    description: Whether Crosswork defined the destination, which makes it read-only
+    example: false

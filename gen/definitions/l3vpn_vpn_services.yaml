@@ -1,0 +1,488 @@
+---
+# The hand-written lifecycle test (resource_crosswork_l3vpn_vpn_services_lifecycle_test.go) runs the same configuration through a change, the removal of the node and its re-add.
+# Hand-written next to the generated code (resource_crosswork_l3vpn_vpn_services_modifyplan.go): a changed RD of a profile or of a
+# node's profile that is already in the state replaces the service. requires_replace on the RD compares by index in a list, so a node
+# that is added or removed would replace the service; the elements are matched by their keys instead.
+# The nested collections are lists, not sets: a set of objects that holds sets is compared element by element at every level,
+# which makes the plan of a service with BGP much slower than with lists. The module and the data keep the same shape.
+# Left out: multicast, probes, SRv6, BDI, the node-level local-as of a profile (no effect on the device).
+name: L3VPN VPN Services
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l3vpn-ntw:l3vpn-ntw/vpn-services/vpn-service=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l3vpn-ntw:l3vpn-ntw/vpn-services
+plan_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l3vpn-ntw:l3vpn-ntw/vpn-services/cisco-l3vpn-ntw:vpn-service-plan=%v
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L3VPN
+res_description: This resource can manage an L3VPN service.
+ds_description: This data source can read an L3VPN service.
+attributes:
+  - model_name: vpn-id
+    tf_name: vpn_id
+    data_path: ietf-l3vpn-ntw:vpn-service.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the service. Letters, digits and `-`, at most 32 characters.
+    example: cwtest-svc
+  - model_name: vpn-service-topology
+    tf_name: vpn_service_topology
+    data_path: ietf-l3vpn-ntw:vpn-service.0
+    type: String
+    enum_values: [ietf-vpn-common:any-to-any, ietf-vpn-common:hub-spoke, ietf-vpn-common:custom]
+    description: Topology of the service
+    example: ietf-vpn-common:any-to-any
+  - model_name: auto-hub-rt
+    tf_name: auto_hub_rt
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:vpn-target
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Marks the hub route target as taken from the NSO pool. Needs the topology any-to-any or hub-spoke. Set to `true` or leave unset.
+    example: true
+  - model_name: auto-spoke-rt
+    tf_name: auto_spoke_rt
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:vpn-target
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Marks the spoke route target as taken from the NSO pool. Needs the topology hub-spoke. Set to `true` or leave unset.
+    example: true
+  - model_name: profile-name
+    tf_name: service_assurance_profile_name
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:service-assurance
+    type: String
+    description: Service assurance profile, which has to exist in Crosswork (the name of a system profile ends in a space and `system`)
+    example: Gold_L3VPN_ConfigProfile system
+  - model_name: rule-name
+    tf_name: service_assurance_rule_name
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:service-assurance
+    type: String
+    description: Service assurance rule, which has to exist in Crosswork
+    example: Rule-L3VPN-NM system
+  - model_name: monitoring-state
+    tf_name: service_assurance_monitoring_state
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:service-assurance
+    type: String
+    enum_values: [enable, disable, pause]
+    description: Monitoring state. `pause` can be set only while the state is `enable`.
+    example: enable
+  - model_name: preservation
+    tf_name: service_assurance_preservation
+    data_path: ietf-l3vpn-ntw:vpn-service.0.cisco-l3vpn-ntw:service-assurance
+    type: String
+    enum_values: [remove, preserve]
+    description: What happens to the monitoring data when the service is removed
+    example: preserve
+  - model_name: vpn-instance-profile
+    tf_name: vpn_instance_profiles
+    data_path: ietf-l3vpn-ntw:vpn-service.0.vpn-instance-profiles
+    type: List
+    description: Profiles of the service
+    attributes:
+      - model_name: profile-id
+        tf_name: profile_id
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the profile
+        example: SITE1
+      - model_name: role
+        type: String
+        enum_values: [ietf-vpn-common:hub-role, ietf-vpn-common:spoke-role]
+        exclude_test: true
+        description: Role of the profile in a hub and spoke service
+        example: ietf-vpn-common:hub-role
+      - model_name: rd
+        type: String
+        description: Route distinguisher as type:administrator:value. NSO uses rd auto when it is left out. Changing it replaces the service.
+        example: "0:65001:101"
+      - model_name: local-as
+        tf_name: local_as
+        type: Int64
+        min_int: 1
+        max_int: 4294967295
+        description: Autonomous system of the profile
+        example: 65001
+      - model_name: address-family
+        tf_name: address_families
+        type: List
+        description: Address families of the profile
+        attributes:
+          - model_name: address-family
+            tf_name: address_family
+            type: String
+            id: true
+            mandatory: true
+            enum_values: [ietf-vpn-common:ipv4, ietf-vpn-common:ipv6]
+            description: Address family
+            example: ietf-vpn-common:ipv4
+          - model_name: vpn-target
+            tf_name: vpn_targets
+            data_path: vpn-targets
+            type: List
+            description: Route targets of the family
+            attributes:
+              - model_name: id
+                type: Int64
+                id: true
+                mandatory: true
+                min_int: 1
+                max_int: 255
+                description: Number of the group of route targets
+                example: 1
+              - model_name: route-target-type
+                tf_name: route_target_type
+                type: String
+                enum_values: [both, import, export]
+                description: Whether the targets are imported, exported or both
+                example: both
+              - model_name: route-targets
+                tf_name: route_targets
+                type: List
+                description: Route targets of the group
+                attributes:
+                  - model_name: route-target
+                    tf_name: route_target
+                    type: String
+                    id: true
+                    mandatory: true
+                    description: Route target as type:administrator:value
+                    example: "0:65001:4242"
+          - model_name: import-policy
+            tf_name: import_policy
+            data_path: vpn-targets.vpn-policies
+            type: String
+            description: Name of the route policy that is applied to the routes that are imported
+            example: cwtest-policy
+            test_value: crosswork_l3vpn_route_policies.vpn_test.name
+          - model_name: export-policy
+            tf_name: export_policy
+            data_path: vpn-targets.vpn-policies
+            type: String
+            description: Name of the route policy that is applied to the routes that are exported
+            example: cwtest-policy
+            test_value: crosswork_l3vpn_route_policies.vpn_test.name
+  - model_name: vpn-node
+    tf_name: vpn_nodes
+    data_path: ietf-l3vpn-ntw:vpn-service.0.vpn-nodes
+    type: List
+    description: Nodes of the service.
+    attributes:
+      - model_name: vpn-node-id
+        tf_name: vpn_node_id
+        type: String
+        id: true
+        reference_nso_device: true
+        mandatory: true
+        description: Name of a device in the Crosswork inventory that is onboarded to NSO
+        example: build-router-1
+        test_value: data.crosswork_network_devices.vpn_test.id
+      - model_name: local-as
+        tf_name: local_as
+        type: Int64
+        min_int: 1
+        max_int: 4294967295
+        description: Autonomous system of the node
+        example: 65001
+      - model_name: vpn-instance-profile
+        tf_name: active_vpn_instance_profiles
+        data_path: active-vpn-instance-profiles
+        type: List
+        description: Profiles that the node uses, with the values that replace the profile on this node
+        attributes:
+          - model_name: profile-id
+            tf_name: profile_id
+            type: String
+            id: true
+            mandatory: true
+            description: Name of a profile of the service
+            example: SITE1
+          - model_name: rd
+            type: String
+            description: Route distinguisher that replaces the one of the profile on this node. Changing it replaces the service.
+            example: "0:65001:202"
+          - model_name: address-family
+            tf_name: address_families
+            type: List
+            exclude_test: true
+            description: Address families that replace those of the profile on this node
+            attributes:
+              - model_name: address-family
+                tf_name: address_family
+                type: String
+                id: true
+                mandatory: true
+                enum_values: [ietf-vpn-common:ipv4, ietf-vpn-common:ipv6]
+                description: Address family
+                example: ietf-vpn-common:ipv4
+              - model_name: vpn-target
+                tf_name: vpn_targets
+                data_path: vpn-targets
+                type: List
+                description: Route targets of the family
+                attributes:
+                  - model_name: id
+                    type: Int64
+                    id: true
+                    mandatory: true
+                    min_int: 1
+                    max_int: 255
+                    description: Number of the group of route targets
+                    example: 1
+                  - model_name: route-target-type
+                    tf_name: route_target_type
+                    type: String
+                    enum_values: [both, import, export]
+                    description: Whether the targets are imported, exported or both
+                    example: both
+                  - model_name: route-targets
+                    tf_name: route_targets
+                    type: List
+                    description: Route targets of the group
+                    attributes:
+                      - model_name: route-target
+                        tf_name: route_target
+                        type: String
+                        id: true
+                        mandatory: true
+                        description: Route target as type:administrator:value
+                        example: "0:65001:4242"
+              - model_name: import-policy
+                tf_name: import_policy
+                data_path: vpn-targets.vpn-policies
+                type: String
+                exclude_test: true
+                description: Name of the route policy that is applied to the routes that are imported
+                example: cwtest-policy
+              - model_name: export-policy
+                tf_name: export_policy
+                data_path: vpn-targets.vpn-policies
+                type: String
+                exclude_test: true
+                description: Name of the route policy that is applied to the routes that are exported
+                example: cwtest-policy
+      - model_name: vpn-network-access
+        tf_name: vpn_network_accesses
+        data_path: vpn-network-accesses
+        type: List
+        description: Accesses of the node
+        attributes:
+          - model_name: id
+            type: String
+            id: true
+            mandatory: true
+            description: Identifier of the access
+            example: "1"
+          - model_name: interface-id
+            tf_name: interface_id
+            type: String
+            mandatory: true
+            description: Interface of the access. A dot1q access becomes a sub-interface.
+            example: GigabitEthernet0/0/0/5
+          - model_name: type
+            tf_name: encapsulation_type
+            data_path: connection.encapsulation
+            type: String
+            enum_values: [ietf-vpn-common:dot1q]
+            description: Encapsulation type
+            example: ietf-vpn-common:dot1q
+          - model_name: cvlan-id
+            tf_name: cvlan_id
+            data_path: connection.encapsulation.dot1q
+            type: Int64
+            min_int: 1
+            max_int: 4094
+            description: VLAN of the dot1q sub-interface
+            example: 100
+          - model_name: local-address
+            tf_name: ipv4_address
+            data_path: ip-connection.ipv4
+            type: String
+            description: IPv4 address of the access
+            example: 10.10.10.1
+          - model_name: prefix-length
+            tf_name: ipv4_prefix_length
+            data_path: ip-connection.ipv4
+            type: Int64
+            min_int: 1
+            max_int: 32
+            description: Prefix length of the IPv4 address
+            example: 30
+          - model_name: local-address
+            tf_name: ipv6_address
+            data_path: ip-connection.ipv6
+            type: String
+            description: IPv6 address of the access
+            example: 2001:db8:10:10::1
+          - model_name: prefix-length
+            tf_name: ipv6_prefix_length
+            data_path: ip-connection.ipv6
+            type: Int64
+            min_int: 1
+            max_int: 128
+            description: Prefix length of the IPv6 address
+            example: 64
+          - model_name: mtu
+            data_path: service
+            type: Int64
+            min_int: 64
+            max_int: 65535
+            description: MTU of the access. NSO refuses it on a Loopback.
+            example: 1600
+          - model_name: qos-profile
+            tf_name: qos_profiles
+            data_path: service.qos.qos-profile
+            type: List
+            description: QoS profiles of the access
+            attributes:
+              - model_name: profile
+                type: String
+                id: true
+                mandatory: true
+                description: Name of a QoS profile id; the device needs a policy-map of that name
+                example: GOLD-IN
+                test_value: crosswork_l3vpn_qos_profile_ids.vpn_test.name
+              - model_name: direction
+                type: String
+                enum_values: [ietf-vpn-common:both, ietf-vpn-common:site-to-wan, ietf-vpn-common:wan-to-site]
+                description: wan-to-site is the input and site-to-wan the output of the interface
+                example: ietf-vpn-common:wan-to-site
+          - model_name: routing-protocol
+            tf_name: routing_protocols
+            data_path: routing-protocols
+            type: List
+            description: Routing protocols of the access. A route policy of the profile is pushed only when there is one.
+            attributes:
+              - model_name: id
+                type: String
+                id: true
+                mandatory: true
+                description: Identifier of the routing protocol
+                example: "1"
+              - model_name: type
+                type: String
+                mandatory: true
+                enum_values: [ietf-vpn-common:bgp-routing, ietf-vpn-common:direct-routing]
+                description: Routing protocol
+                example: ietf-vpn-common:bgp-routing
+              - model_name: peer-as
+                tf_name: bgp_peer_as
+                data_path: bgp
+                type: Int64
+                min_int: 1
+                max_int: 4294967295
+                description: Autonomous system of the BGP neighbors
+                example: 65100
+              - model_name: address-family
+                tf_name: bgp_address_family
+                data_path: bgp
+                type: String
+                enum_values: [ipv4, ipv6, dual-stack]
+                description: Address family of the BGP neighbors
+                example: ipv4
+              - model_name: neighbor
+                tf_name: bgp_neighbors
+                data_path: bgp
+                type: Set
+                element_type: String
+                description: BGP neighbors, IPv4 or IPv6 addresses
+                example: 10.10.10.2
+              - model_name: multihop
+                tf_name: bgp_multihop
+                data_path: bgp
+                type: Int64
+                min_int: 1
+                max_int: 255
+                description: Number of hops to the BGP neighbors
+                example: 5
+              - model_name: redistribute-connected
+                tf_name: bgp_redistribute_connected
+                data_path: bgp
+                type: List
+                description: Connected routes that BGP redistributes. Only an entry with enable set to true is pushed to the device.
+                attributes:
+                  - model_name: address-family
+                    tf_name: address_family
+                    type: String
+                    id: true
+                    mandatory: true
+                    enum_values: [ietf-vpn-common:ipv4, ietf-vpn-common:ipv6]
+                    description: Address family
+                    example: ietf-vpn-common:ipv4
+                  - model_name: enable
+                    type: Bool
+                    description: Redistribute the connected routes of the family
+                    example: true
+                  - model_name: cisco-l3vpn-ntw:metric
+                    tf_name: metric
+                    type: Int64
+                    min_int: 0
+                    max_int: 4294967295
+                    description: Metric of the redistributed routes
+                    example: 10
+              - model_name: if-type
+                tf_name: bgp_update_source_if_type
+                data_path: bgp.cisco-l3vpn-ntw:update-source
+                type: String
+                enum_values: [Loopback, HundredGigE, FourHundredGigE, TenGigE, GigabitEthernet, Bundle-Ether, TwentyFiveGigE, FortyGigE]
+                description: Interface type of the BGP update source
+                example: GigabitEthernet
+              - model_name: if-id
+                tf_name: bgp_update_source_if_id
+                data_path: bgp.cisco-l3vpn-ntw:update-source
+                type: String
+                description: Interface number of the BGP update source
+                example: "0/0/0/5"
+              - model_name: sub-if-id
+                tf_name: bgp_update_source_sub_if_id
+                data_path: bgp.cisco-l3vpn-ntw:update-source
+                type: Int64
+                min_int: 0
+                max_int: 2147483647
+                description: Sub-interface number of the BGP update source
+                example: 100
+
+test_prerequisites: |
+  data "crosswork_network_devices" "vpn_test" {
+    id = "build-router-1"
+  }
+
+  resource "crosswork_l3vpn_source_prefix_sets" "vpn_test" {
+    name        = "cwtest-vpn-source"
+    mode        = "ipv4"
+    prefix_list = [{ ip_prefix = "10.10.10.0/30" }]
+  }
+
+  resource "crosswork_l3vpn_destination_prefix_sets" "vpn_test" {
+    name        = "cwtest-vpn-dest"
+    mode        = "ipv4"
+    prefix_list = [{ ip_prefix = "10.10.20.0/30" }]
+  }
+
+  resource "crosswork_l3vpn_tag_sets" "vpn_test" {
+    name      = "cwtest-vpn-tags"
+    tag_value = [4242]
+  }
+
+  resource "crosswork_l3vpn_route_policies" "vpn_test" {
+    name = "cwtest-vpn-policy"
+    statements = [{
+      name                    = "1"
+      match_source_prefix_set = crosswork_l3vpn_source_prefix_sets.vpn_test.name
+      match_dest_prefix_set   = crosswork_l3vpn_destination_prefix_sets.vpn_test.name
+      policy_result           = "accept-route"
+      set_ext_community       = crosswork_l3vpn_tag_sets.vpn_test.name
+    }]
+  }
+
+  # the policy-map GOLD-IN is on build-router-1, the profile id has to carry its name
+  resource "crosswork_l3vpn_qos_profile_ids" "vpn_test" {
+    name = "GOLD-IN"
+  }

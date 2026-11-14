@@ -1,0 +1,76 @@
+---
+name: L2VPN Route Policies
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/policy-definitions/policy-definition=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/policy-definitions
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage an L2VPN route policy (policy definition).
+ds_description: This data source can read an L2VPN route policy (policy definition).
+attributes:
+  - model_name: name
+    data_path: cisco-l2vpn-routing-policy:policy-definition.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the policy. Letters, digits, `-`, `_` and `.`, starting with a letter or a digit.
+    example: cwtest-l2-policy
+  - model_name: statement
+    tf_name: statements
+    data_path: cisco-l2vpn-routing-policy:policy-definition.0.statements
+    type: Set
+    description: Statements of the policy
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Statement name
+        example: "1"
+      - model_name: rd-set
+        tf_name: match_rd_set
+        data_path: conditions.match-rd-set
+        type: String
+        description: Name of the RD set that the statement matches. A statement takes one condition at most.
+        example: cwtest-l2-rds
+        test_value: crosswork_l2vpn_rd_sets.test.name
+      - model_name: evpn-route-type-set
+        tf_name: match_evpn_route_type_set
+        data_path: conditions.match-evpn-route-type-set
+        type: String
+        exclude_test: true
+        description: Name of the EVPN route type set that the statement matches
+        example: cwtest-l2-route-types
+      - model_name: etag-set
+        tf_name: match_etag_set
+        data_path: conditions.match-etag-set
+        type: String
+        exclude_test: true
+        description: Name of the Etag set that the statement matches
+        example: cwtest-l2-etags
+      - model_name: ext-community-set-ref
+        tf_name: set_ext_community
+        data_path: actions.bgp-actions.set-ext-community
+        type: String
+        mandatory: true
+        description: Name of the tag set that the statement sets as the extended community (the color)
+        example: cwtest-l2-tags
+        test_value: crosswork_l2vpn_tag_sets.test.name
+
+test_prerequisites: |
+  resource "crosswork_l2vpn_rd_sets" "test" {
+    name = "cwtest-l2-rds"
+    rd   = ["65000:1"]
+  }
+
+  resource "crosswork_l2vpn_tag_sets" "test" {
+    name      = "cwtest-l2-tags"
+    tag_value = [4812]
+  }

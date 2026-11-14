@@ -1,0 +1,1 @@
+terraform import crosswork_survey_settings.example "survey_settings"

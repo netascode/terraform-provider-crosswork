@@ -1,0 +1,1 @@
+terraform import crosswork_collection_jobs_cadence.example "collection_jobs_cadence"

@@ -1,0 +1,29 @@
+---
+# a QOS profile id of the L3VPN service model of the L3VPN function pack, written through the Crosswork NSO proxy.
+# The create is a POST on the parent container (a duplicate is refused), the update is a PUT of the whole object.
+# The object has no plan and no device push: a refusal comes back as an NSO validation error (HTTP 400).
+# A QoS profile id is a free name that a service can refer to.
+name: L3VPN QoS Profile Ids
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l3vpn-ntw:l3vpn-ntw/vpn-profiles/valid-provider-identifiers/qos-profile-identifier=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l3vpn-ntw:l3vpn-ntw/vpn-profiles/valid-provider-identifiers
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L3VPN
+res_description: This resource can manage a QoS profile id of the L3VPN service model.
+ds_description: This data source can read a QoS profile id of the L3VPN service model.
+attributes:
+  - model_name: id
+    tf_name: name
+    data_path: ietf-l3vpn-ntw:qos-profile-identifier.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the QoS profile. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-qos

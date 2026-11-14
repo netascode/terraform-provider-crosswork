@@ -1,0 +1,56 @@
+---
+name: L2VPN ID Pools
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/cisco-l2vpn-ntw:id-pools
+get_extra_query_params: "?content=config"
+put_create: true
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+id_path: '!\"l2vpn_id_pools\"'
+skip_minimum_test: true
+doc_category: L2VPN
+res_description: This resource can manage the association of the L2VPN with resource pools.
+ds_description: This data source can read the association of the L2VPN with resource pools.
+attributes:
+  - model_name: evi-id-pool-name
+    tf_name: evi_id_pool
+    data_path: cisco-l2vpn-ntw:id-pools
+    type: String
+    description: Pool of the automatic EVI ids (`auto_evi_id` of a service)
+    example: cwtest-l2-evi
+    test_value: crosswork_resource_pools.test_evi.name
+  - model_name: evi-source-target-pool-name
+    tf_name: evi_source_target_pool
+    data_path: cisco-l2vpn-ntw:id-pools
+    type: String
+    description: Pool of the automatic EVI source and target (`auto_evi_source` and `auto_evi_target` of a service)
+    example: cwtest-l2-evi-st
+    test_value: crosswork_resource_pools.test_st.name
+  - model_name: rt-pool-name
+    tf_name: rt_pool
+    data_path: cisco-l2vpn-ntw:id-pools
+    type: String
+    description: Pool of the automatic route targets
+    example: cwtest-l2-rt
+    test_value: crosswork_resource_pools.test_rt.name
+
+test_prerequisites: |
+  resource "crosswork_resource_pools" "test_evi" {
+    name        = "cwtest-l2-evi"
+    range_start = 3000
+    range_end   = 3100
+  }
+
+  resource "crosswork_resource_pools" "test_st" {
+    name        = "cwtest-l2-evi-st"
+    range_start = 5000
+    range_end   = 5100
+  }
+
+  resource "crosswork_resource_pools" "test_rt" {
+    name        = "cwtest-l2-rt"
+    range_start = 7000
+    range_end   = 7100
+  }

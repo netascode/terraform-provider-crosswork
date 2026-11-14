@@ -1,0 +1,30 @@
+---
+name: L2VPN RD Sets
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/rd-sets/rd-set=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/rd-sets
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage an L2VPN route distinguisher set.
+ds_description: This data source can read an L2VPN route distinguisher set.
+attributes:
+  - model_name: name
+    data_path: cisco-l2vpn-routing-policy:rd-set.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the RD set. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-l2-rds
+  - model_name: rd
+    data_path: cisco-l2vpn-routing-policy:rd-set.0
+    type: Set
+    element_type: String
+    description: Route distinguishers of the set, as `65000:1` or `1.1.1.1:1`
+    example: "65000:1"

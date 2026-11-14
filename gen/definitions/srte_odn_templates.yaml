@@ -1,0 +1,244 @@
+---
+# An SR-TE on-demand next-hop (ODN) template of the NSO function pack, written through the Crosswork NSO proxy.
+# The create is synchronous: NSO pushes the configuration to the head ends inside the call and a refusal by a
+# device comes back as the error of the call. A removal is not: the plan wait (plan_endpoint) keeps the delete,
+# and an update that drops a head end, open until the device clean-up is done.
+# The acceptance test creates the template with the head end build-router-1, a device that is always onboarded in
+# Crosswork and synced with NSO (the test does not create it): a head end must be a device of the NSO dispatch map,
+# and the provider waits until NSO has it (reference_nso_device).
+# Left out: custom-template (its YANG module is not part of the function pack source).
+name: SRTE ODN Templates
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-odn:odn/odn-template=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-odn:odn
+plan_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-odn:odn/odn-template-plan=%v
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: Traffic Engineering
+res_description: This resource can manage an SR-TE on-demand next-hop (ODN) template.
+ds_description: This data source can read an SR-TE on-demand next-hop (ODN) template.
+attributes:
+  - model_name: name
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Template name
+    example: cwtest-odn
+  - model_name: color
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 4294967295
+    description: SR policy color. Traffic whose route carries this color is steered into the policy that the template creates.
+    example: 4242
+  - model_name: head-end
+    tf_name: head_end
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: Set
+    description: Head ends of the template.
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        reference_nso_device: true
+        mandatory: true
+        description: Name of a device in the Crosswork inventory that is onboarded to NSO
+        example: build-router-1
+  - model_name: maximum-sid-depth
+    tf_name: maximum_sid_depth
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: Int64
+    min_int: 1
+    max_int: 255
+    description: Maximum SID depth.
+    example: 8
+  - model_name: pce-group
+    tf_name: pce_group
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: String
+    description: PCE group
+    example: cwtest-pce-group
+  - model_name: bandwidth
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: Int64
+    min_int: 1
+    max_int: 4294967295
+    description: Requested bandwidth in kbps. Not supported together with SRv6.
+    example: 1000
+  - model_name: source-address
+    tf_name: source_address
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0
+    type: String
+    description: Source address of the policies. An IPv6 address needs SRv6.
+    example: 192.0.2.1
+  - model_name: locator-name
+    tf_name: srv6_locator_name
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.srv6.locator
+    type: String
+    exclude_test: true
+    description: SRv6 locator name. Setting any SRv6 attribute turns on SRv6 for the template.
+    example: cwtest-locator
+  - model_name: behavior
+    tf_name: srv6_locator_behavior
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.srv6.locator
+    type: String
+    enum_values: [ub6-insert-reduced]
+    exclude_test: true
+    description: SRv6 behavior of the locator
+    example: ub6-insert-reduced
+  - model_name: binding-sid-type
+    tf_name: srv6_locator_binding_sid_type
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.srv6.locator
+    type: String
+    enum_values: [srv6-dynamic]
+    exclude_test: true
+    description: SRv6 binding SID type
+    example: srv6-dynamic
+  - model_name: pce
+    tf_name: dynamic_pce
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic
+    type: Bool
+    type_yang_bool: presence
+    description: Delegate the path computation to the PCE. Set to `true` or leave unset.
+    example: true
+  - model_name: flex-alg
+    tf_name: dynamic_flex_alg
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic
+    type: Int64
+    min_int: 128
+    max_int: 255
+    description: Flexible algorithm (prefix-SID algorithm)
+    example: 129
+  - model_name: metric-type
+    tf_name: dynamic_metric_type
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic
+    type: String
+    enum_values: [hopcount, igp, latency, te]
+    description: Metric type of the path computation
+    example: igp
+  - model_name: absolute
+    tf_name: dynamic_metric_margin_absolute
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.metric-margin
+    type: Int64
+    min_int: 0
+    max_int: 2147483647
+    description: Absolute metric margin. Use this or the relative margin.
+    example: 5
+  - model_name: relative
+    tf_name: dynamic_metric_margin_relative
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.metric-margin
+    type: Int64
+    min_int: 0
+    max_int: 2147483647
+    exclude_test: true
+    description: Relative metric margin in percent. Use this or the absolute margin.
+    example: 10
+  - model_name: rule
+    tf_name: dynamic_affinity_rules
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.affinity
+    type: Set
+    description: Affinity rules of the path computation
+    attributes:
+      - model_name: action
+        type: String
+        id: true
+        mandatory: true
+        enum_values: [exclude-any, include-all, include-any]
+        description: Rule action
+        example: include-any
+      - model_name: color
+        type: Set
+        element_type: String
+        description: Names of the affinity colors of the rule. NSO returns them sorted.
+        example: red
+  - model_name: sid-algorithm
+    tf_name: dynamic_segments_sid_algorithm
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.segments
+    type: Int64
+    min_int: 128
+    max_int: 255
+    description: SID algorithm constraint
+    example: 129
+    exclude_example: true
+  - model_name: type
+    tf_name: dynamic_disjoint_path_type
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.disjoint-path
+    type: String
+    enum_values: [link, node, srlg, srlg-node]
+    description: Disjointness type. With `dynamic_disjoint_path_group_id` it makes the paths of the group disjoint.
+    example: node
+  - model_name: group-id
+    tf_name: dynamic_disjoint_path_group_id
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.disjoint-path
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: Disjoint group id. Required with the type.
+    example: 5
+  - model_name: sub-id
+    tf_name: dynamic_disjoint_path_sub_id
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.dynamic.disjoint-path
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: Disjoint sub group id
+    example: 1
+  - model_name: profile
+    tf_name: delay_measurement_profile
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.delay-measurement
+    type: String
+    description: Delay measurement profile of the head end. Not `default`; leave it unset for the default profile.
+    example: delay-profile-1
+  - model_name: delay-exceeded
+    tf_name: delay_measurement_logging_delay_exceeded
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.delay-measurement.logging
+    type: Bool
+    type_yang_bool: empty
+    description: Log when the delay is exceeded. Set to `true` or leave unset.
+    example: true
+  - model_name: profile
+    tf_name: liveness_detection_profile
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.liveness-detection
+    type: String
+    exclude_test: true
+    description: Liveness detection profile. Not `default`. Use this or delay measurement.
+    example: cwtest-liveness
+  - model_name: backup
+    tf_name: liveness_detection_backup
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.liveness-detection
+    type: String
+    exclude_test: true
+    description: Backup liveness detection profile. Needs a profile.
+    example: cwtest-liveness-backup
+  - model_name: invalidation-action
+    tf_name: liveness_detection_invalidation_action
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.liveness-detection
+    type: String
+    enum_values: [down, none]
+    exclude_test: true
+    description: Action when the liveness session invalidates the path
+    example: down
+  - model_name: session-state-change
+    tf_name: liveness_detection_logging_session_state_change
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement.liveness-detection.logging
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Log a change of the liveness session state. Set to `true` or leave unset.
+    example: true
+  - model_name: reverse-path-label
+    tf_name: performance_measurement_reverse_path_label
+    data_path: cisco-sr-te-cfp-sr-odn:odn-template.0.performance-measurement
+    type: Int64
+    min_int: 16
+    max_int: 1048575
+    description: Reverse path label of the performance measurement
+    example: 2000

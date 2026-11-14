@@ -1,0 +1,61 @@
+---
+# hand-written:
+#   resource: create, update, delete
+#   data source: -
+#   model: toBody, fromBody, updateFromBody
+#   helpers: health_settings_logic.go
+#   tests: health_settings_test.go (offline tests of the body and the read)
+#   why: the controller reads one object by policy and metric and accepts a row only as it read it, so a write reads the rows, replaces their categories and sends them back; a destroy resets every row
+name: Health Settings
+rest_endpoint: /crosswork/performance/v1/dashboards/healthsettings
+get_rest_endpoint: /crosswork/performance/v1/dashboards/healthsettings/all
+get_no_id: true
+put_create: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"health_settings\"'
+# The thresholds belong to the whole cluster, so the acceptance test changes one row and the destroy resets all rows.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the health settings of the performance monitoring dashboards.
+ds_description: This data source can read the health settings of the performance monitoring dashboards.
+attributes:
+  - model_name: rows
+    type: Map
+    allow_import_changes: true
+    mandatory: true
+    description: Health settings by metric key, for example `CPU_cpuUtilization`. Only editable metrics can be changed. A metric that is not listed keeps its categories
+    map_key_example: CPU_cpuUtilization
+    attributes:
+      - model_name: unit
+        type: String
+        description: Unit of the metric, for a metric that offers several (`bps`, `kbps`, `mbps` or `gbps` for the post-FEC BER). Leave it out to keep the unit
+        example: PERCENTAGE
+      - model_name: categories
+        type: List
+        mandatory: true
+        description: Levels of the metric. A range level has `min` and `max`, either may be left out; a level of a metric with values has `values`
+        example: '[{ level = "HEALTHY", min = 0, max = 25 }, { level = "MINOR", min = 25, max = 50 }, { level = "MAJOR", min = 50, max = 75 }, { level = "CRITICAL", min = 75, max = 100 }]'
+        attributes:
+          - model_name: level
+            type: String
+            mandatory: true
+            enum_values: [HEALTHY, MINOR, MAJOR, CRITICAL]
+            description: Severity of the level
+            example: HEALTHY
+          - model_name: min
+            type: Float64
+            description: Lower end of a range level
+            example: 0
+          - model_name: max
+            type: Float64
+            description: Upper end of a range level
+            example: 25
+          - model_name: values
+            type: List
+            element_type: Int64
+            description: Whole numbers of a level of a metric that lists values, such as the clock state
+            example: '[2]'

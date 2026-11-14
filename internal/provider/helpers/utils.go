@@ -1,0 +1,113 @@
+// Copyright © 2026 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Mozilla Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://mozilla.org/MPL/2.0/
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: MPL-2.0
+
+package helpers
+
+import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/tidwall/gjson"
+)
+
+func Contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+func GetStringMap(result map[string]gjson.Result) types.Map {
+	v := make(map[string]attr.Value)
+	for key, value := range result {
+		v[key] = types.StringValue(value.String())
+	}
+	return types.MapValueMust(types.StringType, v)
+}
+
+func GetStringList(result []gjson.Result) types.List {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.StringValue(result[r].String())
+	}
+	return types.ListValueMust(types.StringType, v)
+}
+
+func GetInt64List(result []gjson.Result) types.List {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.Int64Value(result[r].Int())
+	}
+	return types.ListValueMust(types.Int64Type, v)
+}
+
+func GetStringSet(result []gjson.Result) types.Set {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.StringValue(result[r].String())
+	}
+	return types.SetValueMust(types.StringType, v)
+}
+
+// Used when GET expands inherited members (for example child ids returned for a parent object), so they do not appear as drift against a
+// parent-only configuration. GET does not distinguish inherited children from values assigned by the controller, so those are dropped too.
+// state must be a types.Set of strings (not a List).
+func KeepStringSetIn(ctx context.Context, state types.Set, api []gjson.Result) types.Set {
+	allow := make(map[string]struct{}, len(api))
+	for _, v := range api {
+		allow[v.String()] = struct{}{}
+	}
+	var stateVals []string
+	_ = state.ElementsAs(ctx, &stateVals, false)
+	kept := make([]attr.Value, 0, len(stateVals))
+	for _, v := range stateVals {
+		if _, ok := allow[v]; ok {
+			kept = append(kept, types.StringValue(v))
+		}
+	}
+	return types.SetValueMust(types.StringType, kept)
+}
+
+func GetInt64Set(result []gjson.Result) types.Set {
+	v := make([]attr.Value, len(result))
+	for r := range result {
+		v[r] = types.Int64Value(result[r].Int())
+	}
+	return types.SetValueMust(types.Int64Type, v)
+}
+
+func StringSetEqual(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	counts := make(map[string]int, len(a))
+	for _, v := range a {
+		counts[v]++
+	}
+	for _, v := range b {
+		counts[v]--
+	}
+	for _, c := range counts {
+		if c != 0 {
+			return false
+		}
+	}
+	return true
+}

@@ -1,0 +1,48 @@
+---
+name: Lock Users
+rest_endpoint: /crosswork/aaa/v1/lockUsers
+get_rest_endpoint: /crosswork/aaa/v1/user
+get_no_id: true
+get_from_all: true
+id_from_query_path: '@values.#(Status==\"Locked\")#|@this'
+delete_rest_endpoint: /crosswork/aaa/v1/unlockUsers
+id_from_attribute: true
+put_create: true
+post_body: '{"{id}": {body}}'
+put_delete: true
+delete_no_id: true
+delete_body: '{"{id}": {"userName": "{id}"}}'
+no_update: true
+doc_category: Administration
+res_description: This resource can lock a local user. The user must exist and be active when the lock is created.
+skip_minimum_test: true
+attributes:
+  - model_name: userName
+    tf_name: username
+    response_model_name: Username
+    response_data_path: Username
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Username of the user to lock
+    test_value: crosswork_users.test.username
+    example: cwtest-lockuser
+  - model_name: Status
+    type: String
+    value: Locked
+    description: Account status
+
+test_prerequisites: |
+  resource "crosswork_users" "test" {
+    username            = "cwtest-lockuser"
+    password_wo         = "CwtestPass123!"
+    password_wo_version = 1
+    policy_id           = "admin"
+    first_name          = "Test"
+    last_name           = "User"
+    device_access_groups = [{
+      uuid        = "b84e1a37-ef0d-4b79-984c-b162249d2e23"
+      domain_name = "ALL-ACCESS"
+    }]
+  }

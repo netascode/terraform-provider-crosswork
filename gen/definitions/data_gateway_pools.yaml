@@ -1,0 +1,82 @@
+---
+# hand-written:
+#   resource: create, read, update, delete and import (the manually managed sections), and the schema (data_gateway_ids is computed only)
+#   data source: whole file (data_source_crosswork_data_gateway_pools.go)
+#   model: toBody, fromBody, updateFromBody
+#   helpers: data_gateway_pools_logic.go
+#   tests: data_gateway_pools_logic_test.go, data_gateway_pools_stub_test.go, data_source_crosswork_data_gateway_pools_test.go, data_source_crosswork_data_gateway_pools_unit_test.go
+#   why: the body mixes camelCase and snake_case keys and sends numbers as strings, the id comes back as "<uuid> <name>", the gateways come from a second call, and a change is retried while the controller settles
+name: Data Gateway Pools
+rest_endpoint: /crosswork/dg-manager/v2/hapool
+get_rest_endpoint: /crosswork/dg-manager/v2/hapool/query
+get_body: '{}'
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+no_data_source: true
+mutex: true
+# The acceptance test creates and removes a one-instance pool made of the instance with the first name (not the first free one: the role of an instance changes once it is in the pool), so it needs a cluster with no pool and a virtual IP of its subnet.
+skip_minimum_test: true
+test_tags: [CLUSTER]
+doc_category: Data Gateway
+res_description: This resource can manage a pool of Crosswork Data Gateway instances.
+ds_description: This data source can read a pool of Crosswork Data Gateway instances by its name or its id.
+attributes:
+  - model_name: name
+    type: String
+    requires_replace: true
+    mandatory: true
+    string_patterns: ['^[A-Za-z0-9_.-]+$']
+    description: Pool name, made of letters, digits, underscores, hyphens and dots
+    example: cwtest-gen-pool
+  - model_name: description
+    type: String
+    description: Description of the pool
+    example: Pool of the production gateways
+  - model_name: virtual_ips
+    type: List
+    element_type: String
+    requires_replace: true
+    mandatory: true
+    min_list: 1
+    description: Virtual IP addresses of the pool, all IPv4 or all IPv6, one for each active instance; each one is the address of one data gateway in the order of this list
+    example: 172.16.34.198
+  - model_name: prefix_length
+    type: Int64
+    requires_replace: true
+    mandatory: true
+    min_int: 1
+    max_int: 128
+    description: Prefix length of the virtual IP addresses, 1 to 32 for IPv4 and 1 to 128 for IPv6
+    example: 24
+  - model_name: spares
+    type: Int64
+    default_value: 0
+    min_int: 0
+    description: Number of spare instances of the pool
+    example: 0
+  - model_name: instances
+    type: List
+    element_type: String
+    mandatory: true
+    min_list: 1
+    description: Ids of the data gateway instances of the pool, as `crosswork_data_gateway_instances` lists them; the first one becomes the active instance of the first data gateway
+    example: 2d009d08-e1eb-46b8-a137-1ef15e20ec72
+    test_value: '[[for instance in data.crosswork_data_gateway_instances.pool_test.items : instance.id if instance.name == sort([for i in data.crosswork_data_gateway_instances.pool_test.items : i.name])[0]][0]]'
+  - model_name: cdg_readiness_timeout
+    type: Int64
+    default_value: 60
+    min_int: 30
+    max_int: 1800
+    description: Seconds to wait for the controller to accept a change of the pool and for its data gateways to appear; it only limits how long Terraform waits and is not part of the Crosswork configuration
+    example: 60
+  - model_name: data_gateway_ids
+    type: List
+    element_type: String
+    computed: true
+    exclude_test: true
+    description: Ids of the data gateways of the pool, in the order of the virtual IPs
+    example: 8551f8dc-91eb-43ee-ad4f-6e1993ca524c
+
+test_prerequisites: |
+  data "crosswork_data_gateway_instances" "pool_test" {}

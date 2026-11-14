@@ -1,0 +1,110 @@
+---
+# hand-written:
+#   resource: create, update, delete (the manually managed sections); delete only forgets the entry, the controller keeps it
+#   data source: read (the helper picks the entry of the provider out of the policy document)
+#   model: readGet (the entry of one provider, with the provider name added)
+#   helpers: nso_provider_policy_logic.go
+#   tests: nso_provider_policy_logic_test.go (offline tests, and live tests that put the entry back). The generated acceptance test
+#   writes its example values, with one NED row, into the policy of the provider and leaves them there: run it only on a cluster where that is acceptable.
+#   why: the controller holds one policy document for all NSO providers and a PUT replaces all of it. The resource reads the
+#   document, changes the entry of its provider, and sends everything else back as it was (other providers, the LSA policy block,
+#   the providers criteria). A false flag is stored but read back as missing, and the entries come in a map keyed by the
+#   provider name, which no generator key expresses. The controller creates the entry with the NSO provider and removes it with it.
+name: NSO Provider Policies
+rest_endpoint: /crosswork/inventory/v1/nso/policy
+get_rest_endpoint: /crosswork/inventory/v1/nso/policy/query
+get_body: '{}'
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+mutex: true
+id_from_attribute: true
+# The policy is shared by every NSO provider of the cluster, and a test writes the policy of an existing provider.
+skip_minimum_test: true
+doc_category: Administration
+res_description: This resource can manage the device onboarding policy of an NSO provider.
+ds_description: This data source can read the device onboarding policy of an NSO provider.
+attributes:
+  - model_name: provider_name
+    type: String
+    id: true
+    reference: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the NSO provider the policy belongs to
+    example: nso
+  - model_name: match
+    type: Bool
+    description: Match devices of Crosswork and of the NSO provider by their IP address
+    example: true
+  - model_name: matchRule
+    tf_name: match_rule
+    type: String
+    string_min_length: 1
+    string_max_length: 4096
+    description: Expression that selects the devices that are matched, for example `*` or `host_name = 'build-*'`
+    example: '*'
+  - model_name: onboardTo
+    tf_name: onboard_to_nso
+    type: Bool
+    description: Add the devices that Crosswork has and the NSO provider is missing to the NSO provider
+    example: true
+  - model_name: onboardToRule
+    tf_name: onboard_to_nso_rule
+    type: String
+    string_min_length: 1
+    string_max_length: 4096
+    description: Expression that selects the devices that are added to the NSO provider
+    example: '*'
+  - model_name: onboardFrom
+    tf_name: onboard_from_nso
+    type: Bool
+    description: Add the devices that the NSO provider has and Crosswork is missing to Crosswork
+    example: false
+  - model_name: onboardFromRule
+    tf_name: onboard_from_nso_rule
+    type: String
+    string_min_length: 1
+    string_max_length: 4096
+    description: Expression that selects the devices that are added to Crosswork
+    example: '*'
+  - model_name: syncFrom
+    tf_name: sync_from_nso
+    type: Bool
+    description: Run a sync-from on the NSO provider after the devices are onboarded
+    example: true
+  - model_name: syncFromRule
+    tf_name: sync_from_nso_rule
+    type: String
+    string_min_length: 1
+    string_max_length: 4096
+    description: Expression that selects the devices that are synchronised
+    example: '*'
+  - model_name: checkSync
+    tf_name: check_sync
+    type: Bool
+    description: Check the sync status of the devices on the NSO provider
+    example: true
+  - model_name: checkSyncRule
+    tf_name: check_sync_rule
+    type: String
+    string_min_length: 1
+    string_max_length: 4096
+    description: Expression that selects the devices whose sync status is checked
+    example: '*'
+  - model_name: neds
+    type: List
+    description: Rules that select the NED an onboarded device gets. Both the NED and the rule are required.
+    attributes:
+      - model_name: ned
+        type: String
+        mandatory: true
+        description: Name of the NED, for example `cisco-iosxr-cli-7.76`
+        example: cisco-iosxr-cli-7.76
+      - model_name: rule
+        type: String
+        mandatory: true
+        string_min_length: 1
+        string_max_length: 4096
+        description: Expression that selects the devices that get the NED, for example `product_info.software_type = 'IOS XR*'`
+        example: product_info.software_type = 'IOS XR*'

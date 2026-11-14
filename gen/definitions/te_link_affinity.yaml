@@ -1,0 +1,37 @@
+---
+# hand-written:
+#   resource: read, create, delete
+#   data source: read
+#   model: readGet
+#   helpers: te_affinity_logic.go
+#   tests: te_affinity_test.go (offline tests of the calls)
+#   why: the controller assigns the id of an affinity, answers a refusal with HTTP 200 and a status in the body, and reads all affinities of a kind in one call
+name: TE Link Affinity
+rest_endpoint: /crosswork/optima/api/v1/affinityMap
+get_rest_endpoint: /crosswork/optima/api/v1/affinityMap/teLink
+no_update: true
+mutex: true
+# The affinities belong to the whole cluster, so the acceptance test creates one affinity and the destroy removes it.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage one link affinity for traffic engineering.
+ds_description: This data source can read one link affinity for traffic engineering.
+attributes:
+  - model_name: name
+    type: String
+    mandatory: true
+    requires_replace: true
+    string_min_length: 1
+    string_max_length: 128
+    description: Name of the affinity
+    example: cwtest-link
+  - model_name: bitPosition
+    tf_name: bit_position
+    type: Int64
+    mandatory: true
+    requires_replace: true
+    min_int: 0
+    max_int: 31
+    description: Bit position of the affinity
+    example: 0

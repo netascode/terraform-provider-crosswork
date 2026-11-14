@@ -1,0 +1,47 @@
+---
+# an L3VPN destination prefix set of the L3VPN function pack, written through the Crosswork NSO proxy.
+# The create is a POST on the parent container (a duplicate is refused), the update is a PUT of the whole object.
+# The object has no plan and no device push: a refusal comes back as an NSO validation error (HTTP 400).
+# A route policy statement refers to the set by name. A set that a policy uses cannot be deleted.
+name: L3VPN Destination Prefix Sets
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/defined-sets/prefix-sets/dest-prefix-set=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/defined-sets/prefix-sets
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L3VPN
+res_description: This resource can manage an L3VPN destination prefix set.
+ds_description: This data source can read an L3VPN destination prefix set.
+attributes:
+  - model_name: name
+    data_path: cisco-l3vpn-routing-policy:dest-prefix-set.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the prefix set. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-dest-prefixes
+  - model_name: mode
+    data_path: cisco-l3vpn-routing-policy:dest-prefix-set.0
+    type: String
+    enum_values: [ipv4, ipv6]
+    description: Address family of the prefixes, which must all be of that family. NSO takes ipv4 when it is left out.
+    example: ipv4
+  - model_name: prefix-list
+    tf_name: prefix_list
+    data_path: cisco-l3vpn-routing-policy:dest-prefix-set.0.prefixes
+    type: Set
+    description: Prefixes of the set
+    attributes:
+      - model_name: ip-prefix
+        tf_name: ip_prefix
+        type: String
+        id: true
+        mandatory: true
+        description: IPv4 or IPv6 prefix with its length
+        example: 10.250.1.0/24

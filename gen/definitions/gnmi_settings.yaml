@@ -1,0 +1,33 @@
+---
+name: GNMI Settings
+rest_endpoint: /crosswork/alarm/v1/gnmi/settings
+get_rest_endpoint: /crosswork/alarm/v1/gnmi/settings
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"Cisco Systems":false,"Juniper Networks":true}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"gnmi_settings\"'
+# The flags belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the gNMI alarm collection of the vendors.
+ds_description: This data source can read the gNMI alarm collection of the vendors.
+attributes:
+  - model_name: Cisco Systems
+    tf_name: cisco_systems
+    type: Bool
+    default_value: false
+    description: Enable gNMI for Cisco Systems
+    example: true
+  - model_name: Juniper Networks
+    tf_name: juniper_networks
+    type: Bool
+    default_value: true
+    description: Enable gNMI for Juniper Networks
+    example: false

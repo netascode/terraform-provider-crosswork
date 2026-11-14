@@ -1,0 +1,68 @@
+---
+# hand-written:
+#   resource: - (no_resource)
+#   data source: whole file
+#   model: -
+#   helpers: -
+#   tests: data_source_crosswork_role_catalog_test.go, data_source_crosswork_role_catalog_unit_test.go
+#   why: it reads three services and returns them as nested sets
+name: Role Catalog
+rest_endpoint: /crosswork/aaa/v1/api
+ds_description: This data source fetches all APIs and tasks that a role can be granted on the Crosswork cluster.
+get_no_id: true
+data_source_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Administration
+attributes:
+  - model_name: apis
+    tf_name: apis
+    type: Set
+    description: List of APIs on the Crosswork cluster.
+    attributes:
+      - model_name: id
+        type: String
+        description: API id
+        example: aaa_cw_role_read
+      - model_name: name
+        type: String
+        description: API name
+        example: Users and Roles Management
+      - model_name: category
+        type: String
+        description: API category
+        example: AAA
+  - model_name: tasks
+    tf_name: tasks
+    type: Set
+    description: List of tasks on the Crosswork cluster.
+    attributes:
+      - model_name: id
+        type: String
+        description: Task id
+        example: view_audit_logs
+      - model_name: name
+        type: String
+        description: Task name
+        example: View Audit Logs
+      - model_name: category
+        type: String
+        description: Task category
+        example: Audit
+  - model_name: taskApiPermissions
+    tf_name: task_api_permissions
+    type: Set
+    description: List of APIs that tasks need.
+    attributes:
+      - model_name: taskId
+        type: String
+        description: Task id
+        example: view_audit_logs
+      - model_name: apiId
+        type: String
+        description: API id
+        example: aaa_cw_role_read
+      - model_name: access
+        type: String
+        description: Access level, such as `R` or `RW`
+        example: R

@@ -1,0 +1,68 @@
+---
+# hand-written:
+#   resource: read
+#   data source: read
+#   model: readGet, updateFromBody
+#   helpers: notification_destination_logic.go
+#   tests: syslog_destination_test.go (offline tests of the read)
+#   why: the controller lists all syslog receivers in one call, and it resolves a host name once, when the receiver is created, and stores only the IP, so the address is never read back from it
+name: Syslog Destination
+rest_endpoint: /crosswork/alarm/v1/destination/syslog
+get_rest_endpoint: /crosswork/alarm/v1/destination/syslog
+id_from_attribute: true
+mutex: true
+# The receiver is a name on the whole cluster, so the acceptance test creates one receiver from the documentation range and the destroy removes it.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage a syslog receiver for notification destinations.
+ds_description: This data source can read a syslog receiver of the notification destinations.
+attributes:
+  - model_name: name
+    response_data_path: name
+    type: String
+    id: true
+    mandatory: true
+    requires_replace: true
+    exclude_from_put: true
+    data_path: notificationSyslog
+    string_min_length: 1
+    string_max_length: 128
+    description: Name of the receiver
+    example: cwtest-syslog
+  - model_name: serverAddress
+    response_data_path: serverAddress
+    tf_name: address
+    type: String
+    mandatory: true
+    data_path: notificationSyslog
+    description: IP address or host name of the receiver. The controller resolves a host name once, when the receiver is created, and keeps the IP; the value you configure is kept as written and is not compared with the stored IP
+    example: 192.0.2.1
+  - model_name: port
+    response_data_path: port
+    type: Int64
+    data_path: notificationSyslog
+    min_int: 1
+    max_int: 65535
+    default_value: 514
+    description: Port of the receiver
+    example: 1514
+  - model_name: transportType
+    response_data_path: transportType
+    tf_name: protocol
+    type: String
+    data_path: notificationSyslog
+    enum_values: [UDP, TLS]
+    default_value: UDP
+    description: Transport protocol
+    example: UDP
+  - model_name: certificateId
+    response_data_path: certificateId
+    tf_name: certificate_id
+    type: String
+    data_path: notificationSyslog
+    null_on_empty: true
+    exclude_test: true
+    exclude_example: true
+    description: Id of the certificate of a TLS receiver
+    example: cwtest-cert

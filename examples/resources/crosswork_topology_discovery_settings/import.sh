@@ -1,0 +1,1 @@
+terraform import crosswork_topology_discovery_settings.example "topology_discovery_settings"

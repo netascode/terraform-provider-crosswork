@@ -1,0 +1,54 @@
+---
+# hand-written:
+#   resource: - (no_resource)
+#   data source: whole file
+#   model: -
+#   helpers: data_gateway_instances_logic.go
+#   tests: data_source_crosswork_data_gateway_instances_test.go, data_source_crosswork_data_gateway_instances_unit_test.go
+#   why: the controller needs the ids of the instances of a pool and the instances are enrolled outside Terraform, so the names are looked up
+name: Data Gateway Instances
+rest_endpoint: /crosswork/dg-manager/v1/dg/query
+ds_description: This data source fetches the Crosswork Data Gateway instances that are enrolled on the cluster, with the pool, the data gateway and the state of each. The instances are virtual machines that enrol themselves; Terraform cannot create them.
+get_no_id: true
+data_source_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Data Gateway
+attributes:
+  - model_name: items
+    tf_name: items
+    type: Set
+    description: List of the data gateway instances of the cluster
+    attributes:
+      - model_name: id
+        type: String
+        description: Id of the instance
+        example: 2d009d08-e1eb-46b8-a137-1ef15e20ec72
+      - model_name: name
+        type: String
+        description: Name of the instance
+        example: cw72-dg-2a
+      - model_name: role
+        type: String
+        description: Role of the instance in its pool, `ASSIGNED`, `SPARE` or `UNASSIGNED`
+        example: UNASSIGNED
+      - model_name: poolId
+        tf_name: pool_id
+        type: String
+        description: Id of the pool of the instance, not set for an unassigned instance
+        example: 67a5be3a-285b-493a-b64e-79748466632b
+      - model_name: vdgId
+        tf_name: vdg_id
+        type: String
+        description: Id of the data gateway the instance is the active instance of, not set for a spare or an unassigned instance
+        example: 8551f8dc-91eb-43ee-ad4f-6e1993ca524c
+      - model_name: operState
+        tf_name: oper_state
+        type: String
+        description: Operational state of the instance, such as `OS_UP`, `OS_NOT_READY` or `OS_ERROR`
+        example: OS_UP
+      - model_name: adminState
+        tf_name: admin_state
+        type: String
+        description: Administrative state of the instance, such as `AS_UP`
+        example: AS_UP

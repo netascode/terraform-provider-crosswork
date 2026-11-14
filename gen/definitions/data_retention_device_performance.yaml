@@ -1,0 +1,67 @@
+---
+# hand-written:
+#   resource: -
+#   data source: -
+#   model: toBody, fromBody, updateFromBody, isNull
+#   helpers: -
+#   tests: data_retention_device_performance_test.go (offline tests of the body and the read)
+#   why: the controller reads and writes one JSON object keyed by the policy type at the root of the body
+name: Data Retention Device Performance
+rest_endpoint: /crosswork/performance/v1/dataretention
+get_rest_endpoint: /crosswork/performance/v1/dataretention/all
+get_no_id: true
+put_create: true
+put_no_id: true
+post_delete: true
+delete_rest_endpoint: /crosswork/performance/v1/dataretention/reset
+delete_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"data_retention_device_performance\"'
+# The periods belong to the whole cluster, so the acceptance test changes one row and the destroy resets all rows.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the data retention of the device performance data.
+ds_description: This data source can read the data retention of the device performance data.
+attributes:
+  - model_name: rows
+    type: Map
+    allow_import_changes: true
+    mandatory: true
+    description: Retention periods by policy type, for example `CEPM_INTERFACE`, in hours. A policy type that is not listed keeps its periods
+    map_key_example: CEPM_INTERFACE
+    attributes:
+      - model_name: rawDataRetentionPeriod
+        tf_name: raw_hours
+        type: Int64
+        mandatory: true
+        min_int: 6
+        max_int: 336
+        description: Hours that raw data is kept
+        example: 24
+      - model_name: hourlyDataRetentionPeriod
+        tf_name: hourly_hours
+        type: Int64
+        mandatory: true
+        min_int: 0
+        max_int: 720
+        description: Hours that hourly data is kept, 72 to 720, or 0 for a policy type without aggregation
+        example: 168
+      - model_name: dailyDataRetentionPeriod
+        tf_name: daily_hours
+        type: Int64
+        mandatory: true
+        min_int: 0
+        max_int: 8760
+        description: Hours that daily data is kept, 336 to 8760, or 0 for a policy type without aggregation
+        example: 744
+      - model_name: weeklyDataRetentionPeriod
+        tf_name: weekly_hours
+        type: Int64
+        mandatory: true
+        min_int: 0
+        max_int: 17472
+        description: Hours that weekly data is kept, 336 to 17472, or 0 for a policy type without aggregation
+        example: 9072

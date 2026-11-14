@@ -1,0 +1,85 @@
+---
+# hand-written:
+#   resource: create, read, update
+#   data source: - (no_data_source)
+#   model: toBody, fromBody, updateFromBody
+#   helpers: port_groups_rules_logic.go
+#   tests: port_groups_rules_logic_test.go, port_groups_rules_members_test.go
+#   why: Crosswork keeps the conditions as one JSON text in a string, and a wrong value must be refused before it is sent
+name: Port Groups Rules
+rest_endpoint: /crosswork/grouping/v1/grouping/rule
+id_path: rule.uuid
+put_id: true
+no_data_source: true
+# A condition needs a value (except blank and not_blank), so the minimum test has no valid condition.
+skip_minimum_test: true
+doc_category: Devices
+res_description: This resource can manage the dynamic rule of a port group.
+attributes:
+  - model_name: classifier
+    type: String
+    value: UserDefinedPorts
+    description: Group classifier
+  - model_name: active
+    type: Bool
+    value: true
+    description: Rule state, always true; Crosswork stores a rule that is switched off but evaluates it all the same
+  - model_name: ordering
+    type: Int64
+    value: 0
+    description: Rule ordering, always 0
+  - model_name: targetGroupUuid
+    tf_name: group_id
+    type: String
+    requires_replace: true
+    mandatory: true
+    description: Id of the port group that the rule fills; a group has at most one rule
+    example: 16f9288d-ab96-4ea5-8593-94b30cbf00ee
+    test_value: crosswork_port_groups.rules_test.id
+  - model_name: name
+    type: String
+    mandatory: true
+    description: Name of the rule; set it to the name of the port group
+    example: cwtest-port-group
+    test_value: crosswork_port_groups.rules_test.name
+  - model_name: conditions
+    type: List
+    mandatory: true
+    min_list: 1
+    max_list: 10
+    description: The conditions in order; 10 at most
+    attributes:
+      - model_name: attributeName
+        tf_name: attribute
+        type: String
+        mandatory: true
+        enum_values: [name, admin_status, oper_status, type, speed]
+        description: Port attribute to test
+        example: name
+      - model_name: operator
+        type: String
+        mandatory: true
+        enum_values: [equals, not_equals, matches, not_matches, contains, not_contains, starts_with, ends_with, blank, not_blank, greater_than, greater_than_or_equals, less_than, less_than_or_equals]
+        description: How the attribute is compared. `name` takes every string operator, `type`, `admin_status` and `oper_status` take `equals` and `not_equals`, and `speed` takes `equals`, `not_equals`, `greater_than`, `greater_than_or_equals`, `less_than` and `less_than_or_equals`. `matches` compares the whole name without regard to case, and `*` stands for any characters.
+        example: starts_with
+      - model_name: value
+        type: String
+        description: Value to compare with, none for `blank` and `not_blank`. `admin_status` and `oper_status` take `UP` or `DOWN`, `type` takes one of the port types Crosswork lists, and `speed` takes a whole number with a unit and a space, as `100 Gbps` (units `bps`, `Kbps`, `Mbps`, `Gbps` and `Tbps`).
+        example: Four
+      - model_name: logicalOperator
+        tf_name: logical_operator
+        type: String
+        enum_values: [and, or]
+        description: How the condition is joined to the one before it, `and` or `or`; not set on the first condition and required on the others. `and` binds tighter than `or`, so `1 and 2 or 3 and 4 and 5` reads as `(1 and 2) or (3 and 4 and 5)`
+        example: and
+        exclude_test: true
+
+test_prerequisites: |
+  data "crosswork_groupings" "rules_root" {
+    classifier = "UserDefinedPorts"
+  }
+
+  resource "crosswork_port_groups" "rules_test" {
+    name        = "cwtest-gen-rules"
+    parent_uuid = [for group in data.crosswork_groupings.rules_root.items : group.id if group.discovery_type == "StaticSystem" && group.subgroups_allowed][0]
+  }

@@ -1,0 +1,32 @@
+---
+name: Tags
+rest_endpoint: /crosswork/inventory/v1/tags
+get_rest_endpoint: /crosswork/inventory/v1/tags/query
+get_body: '{"filter":{"name":"{id}"},"next_from":"0"}'
+get_no_id: true
+id_from_attribute: true
+# The API has no update call: a change of the name or the category replaces the tag.
+no_update: true
+remove_resource_on_empty_response: true
+delete_no_id: true
+delete_body: '{"tags":[{"name":"{id}"}]}'
+get_before_delete: true
+doc_category: Administration
+res_description: This resource can manage a user-defined tag.
+skip_minimum_test: true
+attributes:
+  - model_name: name
+    data_path: tags.0
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Tag name, unique on the Crosswork cluster
+    example: cwtest-tag
+  - model_name: category
+    data_path: tags.0
+    type: String
+    requires_replace: true
+    mandatory: true
+    description: Tag category
+    example: cwtest-category

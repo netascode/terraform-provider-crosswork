@@ -1,0 +1,54 @@
+---
+# hand-written:
+#   resource: create, read, update (the manually managed sections); delete leaves the settings as they are
+#   data source: read (the helpers shape the answer of the controller)
+#   model: toBody, fromBody, updateFromBody
+#   helpers: data_gateway_settings_logic.go
+#   tests: data_gateway_settings_logic_test.go
+#   why: the controller takes the whole list of collectors with a memory string, the controller answers 429 while it is busy with a change, and only the collectors of the configuration are managed
+name: Data Gateway Resource Configuration
+rest_endpoint: /crosswork/dg-manager/v2/oam/container/resources
+get_rest_endpoint: /crosswork/dg-manager/v2/oam/container/resources/query
+get_body: '{}'
+get_no_id: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+no_delete: true
+mutex: true
+id_path: '!\"data_gateway_resource_configuration\"'
+skip_minimum_test: true
+test_tags: [CLUSTER]
+doc_category: Data Gateway
+res_description: This resource can manage the memory and the state of the collectors of the Crosswork Data Gateways.
+ds_description: This data source can read the collectors of the Crosswork Data Gateways with their memory and state.
+attributes:
+  - model_name: update_timeout
+    type: Int64
+    default_value: 120
+    min_int: 30
+    max_int: 1800
+    description: Seconds to wait for the controller to accept a change; it only limits how long Terraform waits and is not part of the Crosswork configuration
+    example: 120
+    exclude_test: true
+  - model_name: collectors
+    type: List
+    allow_import_changes: true
+    description: The collectors to manage, listed by name
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        enum_values: [CLI, GNMI, MDT, NETCONF, SNMP, SYSLOG]
+        description: Name of the collector
+        example: CLI
+      - model_name: memory
+        type: Int64
+        min_int: 500
+        max_int: 153600
+        description: Memory of the collector in MB
+        example: 9217
+      - model_name: enabled
+        type: Bool
+        description: Whether the collector is enabled
+        example: true

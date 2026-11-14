@@ -1,0 +1,73 @@
+---
+name: Backup Destination
+rest_endpoint: /crosswork/platform/v1/platform/backup/remote
+get_rest_endpoint: /crosswork/platform/v1/platform/backup/remote
+get_no_id: true
+post_update: true
+put_no_id: true
+no_delete: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"backup_destination\"'
+# The controller logs in to the SFTP server on every save and refuses the save when the login fails.
+# It has no delete (POST and GET only), so the destroy leaves it in place.
+skip_minimum_test: true
+test_tags: [SFTP]
+# The test needs a reachable SFTP server: set SFTP=1 and TF_VAR_sftp_host, TF_VAR_sftp_port, TF_VAR_sftp_username, TF_VAR_sftp_password and TF_VAR_sftp_remote_path.
+doc_category: Settings
+res_description: This resource can manage the remote backup destination (SFTP server) of the cluster.
+ds_description: This data source can read the remote backup destination of the cluster.
+attributes:
+  - model_name: hostName
+    tf_name: host_name
+    type: String
+    mandatory: true
+    string_min_length: 1
+    string_max_length: 255
+    description: IPv4 address or host name of the SFTP server
+    test_value: var.sftp_host
+    example: 192.0.2.10
+  - model_name: port
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 65535
+    description: SSH port of the SFTP server
+    test_value: var.sftp_port
+    example: 22
+  - model_name: username
+    type: String
+    mandatory: true
+    string_min_length: 1
+    string_max_length: 255
+    description: User name for the SFTP server
+    test_value: var.sftp_username
+    example: cwtest
+  - model_name: password
+    type: String
+    mandatory: true
+    write_only: true
+    write_only_tf: true
+    description: Password of the SFTP user
+    test_value: var.sftp_password
+    example: cwtest-password
+  - model_name: remotePath
+    tf_name: remote_path
+    type: String
+    mandatory: true
+    string_min_length: 1
+    string_max_length: 1024
+    description: Directory on the SFTP server that receives the backups
+    test_value: var.sftp_remote_path
+    example: /backups
+
+test_prerequisites: |
+  variable "sftp_host" { type = string }
+  variable "sftp_port" { type = number }
+  variable "sftp_username" { type = string }
+  variable "sftp_password" {
+    type      = string
+    sensitive = true
+  }
+  variable "sftp_remote_path" { type = string }

@@ -1,0 +1,64 @@
+*.dll
+*.exe
+.DS_Store
+example.tf
+terraform.tfplan
+terraform.tfstate
+bin/
+dist/
+modules-dev/
+/pkg/
+website/.vagrant
+website/.bundle
+website/build
+website/node_modules
+.vagrant/
+*.backup
+./*.tfstate
+.terraform/
+*.log
+*.bak
+*~
+.*.swp
+.idea
+*.iml
+*.test
+*.iml
+
+website/vendor
+
+# Test exclusions
+!command/test-fixtures/**/*.tfstate
+!command/test-fixtures/**/.terraform/
+
+# Keep windows files with windows line endings
+*.winfile eol=crlf
+./bin
+# for use in TF_LOG_PATH
+log*.txt
+# Cisco software images
+*.bin
+# Terraform lockfile. While this file is usually committed on deployable TF repos,
+# here it tends to accumulate a lot of unnecessary hashes from transient plugin
+# compilations in dev environment.
+.terraform.lock.hcl
+# Transient Terraform backend lock
+.terraform.tfstate.lock.info
+
+.envrc
+
+# Environment variables
+.env
+
+# Output of make test DEBUG=1 and make unit DEBUG=1
+test-output.log
+unit-output.log
+
+
+.claude/
+logs/
+
+# SBOM files generated during release
+*_sbom.*.json
+# built provider binary
+/terraform-provider-crosswork

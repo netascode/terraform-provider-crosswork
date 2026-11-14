@@ -1,0 +1,50 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: collection_jobs_cadence_logic.go
+#   tests: collection_jobs_cadence_stub_test.go, resource_crosswork_collection_jobs_cadence_unit_test.go, data_source_crosswork_collection_jobs_cadence_unit_test.go, resource_crosswork_collection_jobs_cadence_test.go, data_source_crosswork_collection_jobs_cadence_test.go
+#   why: the controller keeps one setting for the whole cluster, with no id, and refuses a body that does not hold all four values, so the values the configuration leaves out are read first and sent again; a refused value is a job that fails inside HTTP 200; there is no delete
+name: Collection Jobs Cadence
+rest_endpoint: /crosswork/inventory/v1/devicepackage/cadence
+get_rest_endpoint: /crosswork/inventory/v1/devicepackage/cadence/query
+get_body: '{}'
+get_no_id: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+no_delete: true
+no_resource: true
+no_data_source: true
+id_path: '!\"collection_jobs_cadence\"'
+# The setting is shared by every user of the cluster, so the acceptance test changes it and puts the original values back.
+skip_minimum_test: true
+doc_category: Data Gateway
+res_description: This resource can manage the cadence of the Crosswork collection jobs.
+ds_description: This data source can read the cadence of the Crosswork collection jobs that Device Lifecycle Management runs itself, the settings of the Collection Jobs Cadence (DLM) panel of the Collection Jobs page.
+attributes:
+  - model_name: reachability_check
+    type: Int64
+    min_int: 300
+    max_int: 86400
+    description: Seconds between two reachability checks of the devices, 300 (5 minutes) to 86400 (24 hours). Leave it unset to keep the value the cluster holds
+    example: 600
+  - model_name: snmp_check
+    type: Int64
+    min_int: 600
+    max_int: 86400
+    description: Seconds between two SNMP checks of the devices, 600 (10 minutes) to 86400 (24 hours). Leave it unset to keep the value the cluster holds
+    example: 1200
+  - model_name: te_tunnel_id
+    type: Int64
+    min_int: 600
+    max_int: 86400
+    description: Seconds between two collections of the TE tunnel ids, 600 (10 minutes) to 86400 (24 hours). Leave it unset to keep the value the cluster holds
+    example: 1200
+  - model_name: show_clock
+    type: Int64
+    min_int: 600
+    max_int: 86400
+    description: Seconds between two collections of the clock of the devices (`show clock`), 600 (10 minutes) to 86400 (24 hours). Leave it unset to keep the value the cluster holds
+    example: 1800

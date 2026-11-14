@@ -1,0 +1,1 @@
+terraform import crosswork_metric_thresholds.example "metric_thresholds"

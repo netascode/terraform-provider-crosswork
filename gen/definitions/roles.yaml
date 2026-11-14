@@ -1,0 +1,36 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: -
+#   tests: resource_crosswork_roles_test.go, data_source_crosswork_roles_test.go, resource_crosswork_roles_read_unit_test.go, resource_crosswork_roles_unit_test.go
+#   why: the body is a JSON object keyed by API id, and the task permissions need a second, dependent call
+name: Roles
+rest_endpoint: /crosswork/aaa/v1/role
+res_description: This resource can manage a role in the local authentication store.
+ds_description: This data source can read a role of the local authentication store.
+no_resource: true
+no_data_source: true
+doc_category: Administration
+attributes:
+  - model_name: name
+    type: String
+    id: true
+    requires_replace: true
+    description: Role name
+    example: cwtest-role
+  - model_name: api_permissions
+    tf_name: api_permissions
+    type: Map
+    element_type: String
+    mandatory: true
+    description: 'API id with its access level: `R` read, `W` write, `D` delete. The ids are listed by the `crosswork_role_catalog` data source'
+    enum_values: [R, W, D, RW, RD, WD, RWD]
+    example: '{ "cw-fault-events-api" = "RW" }'
+  - model_name: task_permissions
+    tf_name: task_permissions
+    type: Set
+    element_type: String
+    description: Task ids of the role. The ids are listed by the `crosswork_role_catalog` data source
+    example: '["id_view_audit_logs_access"]'

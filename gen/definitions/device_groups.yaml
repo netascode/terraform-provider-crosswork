@@ -1,0 +1,37 @@
+---
+name: Device Groups
+rest_endpoint: /crosswork/grouping/v1/grouping/group
+get_extra_query_params: /details
+id_path: group.uuid
+doc_category: Devices
+res_description: This resource can manage a device group.
+attributes:
+  - model_name: classifier
+    type: String
+    value: LocationDevices
+    description: Group classifier
+  - model_name: name
+    type: String
+    response_data_path: group.name
+    mandatory: true
+    description: Group name, unique among the groups under the same parent
+    example: cwtest-device-group
+  - model_name: description
+    type: String
+    response_data_path: group.description
+    null_on_empty: true
+    description: Group description
+    example: Test device group
+  - model_name: parentUuid
+    tf_name: parent_uuid
+    type: String
+    response_data_path: group.parentUuid
+    mandatory: true
+    description: Id of the parent group; use the id of the `All Locations` group, the group of the `crosswork_groupings` data source that is built in (`discovery_type` is `StaticSystem`) and allows subgroups (`subgroups_allowed`), or the id of another device group
+    example: 260cc7e9-3425-425c-b29d-9b573a5240b9
+    test_value: '[for group in data.crosswork_groupings.anchor.items : group.id if group.discovery_type == "StaticSystem" && group.subgroups_allowed][0]'
+
+test_prerequisites: |
+  data "crosswork_groupings" "anchor" {
+    classifier = "LocationDevices"
+  }

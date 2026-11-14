@@ -1,0 +1,86 @@
+---
+# an L3VPN route policy (policy definition) of the L3VPN function pack, written through the Crosswork NSO proxy.
+# The create is a POST on the parent container (a duplicate is refused), the update is a PUT of the whole object.
+# The object has no plan and no device push: a refusal comes back as an NSO validation error (HTTP 400).
+# A statement matches a source or a destination prefix set and sets a tag set as the color. A statement needs an action. Left out: multicast actions and apply-policy.
+# NSO creates the routing profile id of the same name when it creates the policy (not on an update) and removes it with the policy, so no resource manages the routing profile ids.
+name: L3VPN Route Policies
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/policy-definitions/policy-definition=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/policy-definitions
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L3VPN
+res_description: This resource can manage an L3VPN route policy (policy definition).
+ds_description: This data source can read an L3VPN route policy (policy definition).
+attributes:
+  - model_name: name
+    data_path: cisco-l3vpn-routing-policy:policy-definition.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the policy. Letters, digits, `-`, `_` and `.`, starting with a letter or a digit.
+    example: cwtest-policy
+  - model_name: statement
+    tf_name: statements
+    data_path: cisco-l3vpn-routing-policy:policy-definition.0.statements
+    type: Set
+    description: Statements of the policy
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Statement name
+        example: "1"
+      - model_name: prefix-set
+        tf_name: match_source_prefix_set
+        data_path: conditions.match-source-prefix-set
+        type: String
+        description: Name of the source prefix set that the statement matches.
+        example: cwtest-source-prefixes
+        test_value: crosswork_l3vpn_source_prefix_sets.test.name
+      - model_name: prefix-set
+        tf_name: match_dest_prefix_set
+        data_path: conditions.match-dest-prefix-set
+        type: String
+        description: Name of the destination prefix set that the statement matches
+        example: cwtest-dest-prefixes
+        test_value: crosswork_l3vpn_destination_prefix_sets.test.name
+      - model_name: policy-result
+        data_path: actions
+        tf_name: policy_result
+        type: String
+        enum_values: [accept-route]
+        description: Result of the statement
+        example: accept-route
+      - model_name: ext-community-set-ref
+        tf_name: set_ext_community
+        data_path: actions.bgp-actions.set-ext-community
+        type: String
+        description: Name of the tag set that the statement sets as the extended community (the color)
+        example: cwtest-tags
+        test_value: crosswork_l3vpn_tag_sets.test.name
+test_prerequisites: |
+  resource "crosswork_l3vpn_source_prefix_sets" "test" {
+    name = "cwtest-source-prefixes"
+    mode = "ipv4"
+    prefix_list = [{ ip_prefix = "10.250.1.0/24" }]
+  }
+
+  resource "crosswork_l3vpn_destination_prefix_sets" "test" {
+    name = "cwtest-dest-prefixes"
+    mode = "ipv4"
+    prefix_list = [{ ip_prefix = "10.250.2.0/24" }]
+  }
+
+  resource "crosswork_l3vpn_tag_sets" "test" {
+    name      = "cwtest-tags"
+    tag_value = [4242]
+  }

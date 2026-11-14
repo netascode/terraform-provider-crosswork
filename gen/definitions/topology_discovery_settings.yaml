@@ -1,0 +1,50 @@
+---
+# hand-written:
+#   resource: create, update, delete
+#   data source: -
+#   model: -
+#   helpers: topology_discovery_logic.go
+#   tests: topology_discovery_settings_test.go (offline tests of the wait)
+#   why: the controller applies a change in the background (a status goes from EnableInProgress or DisableInProgress to Ready),
+#   refuses a write while a change is running, and answers a change that it applied with an error text, so a write waits for the state and judges by reading it back
+name: Topology Discovery Settings
+rest_endpoint: /crosswork/topology/v1/topology-service/topology/provider/settings/protocols
+get_rest_endpoint: /crosswork/topology/v1/topology-service/topology/provider/settings/protocols
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_rest_endpoint: /crosswork/topology/v1/topology-service/topology/provider/settings/protocols/defaults
+delete_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"topology_discovery_settings\"'
+# The settings belong to the whole cluster, so the acceptance test writes the three flags and the destroy writes the defaults, which are all off.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the link discovery protocols of the topology.
+ds_description: This data source can read the link discovery protocols of the topology.
+attributes:
+  - model_name: lldpConfig.enabled
+    response_data_path: providerConfig.lldpConfig.enabled
+    tf_name: lldp
+    type: Bool
+    default_value: false
+    description: Discover the links of LLDP
+    example: true
+  - model_name: cdpConfig.enabled
+    response_data_path: providerConfig.cdpConfig.enabled
+    tf_name: cdp
+    type: Bool
+    default_value: false
+    description: Discover the links of CDP
+    example: true
+  - model_name: lagConfig.enabled
+    response_data_path: providerConfig.lagConfig.enabled
+    tf_name: lag
+    type: Bool
+    default_value: false
+    description: Discover the links of LAG
+    example: true

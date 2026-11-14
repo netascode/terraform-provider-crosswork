@@ -1,0 +1,53 @@
+---
+name: Login Banner
+rest_endpoint: /crosswork/platform/v2/cluster/banner/set
+get_rest_endpoint: /crosswork/platform/v2/cluster/banner/get
+get_body: '{}'
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"ResetSettings":true}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"login_banner\"'
+# The banner belongs to the whole cluster, so the acceptance test changes it and the destroy puts the factory banner back.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the pre-login disclaimer of the cluster.
+ds_description: This data source can read the pre-login disclaimer of the cluster.
+attributes:
+  - model_name: ShowMessage
+    tf_name: show_message
+    type: Bool
+    default_value: false
+    description: Show the disclaimer before the login
+    example: true
+  - model_name: UserAck
+    tf_name: user_ack
+    type: Bool
+    default_value: false
+    description: Ask the user to acknowledge the disclaimer. The controller reads it as false whenever `show_message` is false
+    example: false
+  - model_name: Message
+    tf_name: message
+    type: String
+    default_value: Welcome to Cisco Crosswork. Logging into the system means that you acknowledge and agree to comply with Cisco Crosswork terms and conditions.
+    description: Text of the disclaimer
+    example: Authorized use only
+  - model_name: Icon
+    tf_name: icon
+    type: String
+    enum_values: [BANNER_ICON_INFO, BANNER_ICON_IMPORTANT, BANNER_ICON_CRITICAL]
+    default_value: BANNER_ICON_INFO
+    description: Icon of the disclaimer
+    example: BANNER_ICON_IMPORTANT
+  - model_name: Title
+    tf_name: title
+    type: String
+    default_value: Crosswork Legal Disclaimer
+    description: Title of the disclaimer
+    example: Notice

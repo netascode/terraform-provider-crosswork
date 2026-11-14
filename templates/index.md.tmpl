@@ -1,0 +1,39 @@
+---
+page_title: "Provider: Crosswork"
+description: |-
+  Use the Crosswork provider to manage a Cisco Crosswork Network Controller (CNC) cluster through its REST API.
+---
+
+# Cisco Crosswork Network Controller Provider
+
+Use the Crosswork provider to manage a Cisco Crosswork Network Controller (CNC) cluster through its REST API.
+
+All resources and data sources have been tested with the following releases.
+
+| Platform                     | Version |
+| ---------------------------- | ------- |
+| Crosswork Network Controller | 7.2.0   |
+| Crosswork Network Controller | 7.2.1   |
+| TSDN Function pack           | 7.2.1   |
+
+## Requirements
+
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.11
+
+Resources that manage secrets expose them as [write-only arguments](https://developer.hashicorp.com/terraform/language/resources/ephemeral#write-only-arguments) (the `*_wo` attributes), which are only supported in Terraform 1.11 and later.
+
+## Getting Started
+
+The following guides with examples exist to demonstrate the use of the provider:
+
+- [Getting Started](https://registry.terraform.io/providers/CiscoDevNet/crosswork/latest/docs/guides/getting_started)
+- [Managing Secrets](https://registry.terraform.io/providers/CiscoDevNet/crosswork/latest/docs/guides/secrets)
+- [Manage Multiple Instances](https://registry.terraform.io/providers/CiscoDevNet/crosswork/latest/docs/guides/manage_multiple_instances)
+
+Crosswork limits the number of sessions per user. The provider uses one session per Crosswork instance and logs out when it exits.
+
+## Example Usage
+
+{{tffile "examples/provider/provider.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}

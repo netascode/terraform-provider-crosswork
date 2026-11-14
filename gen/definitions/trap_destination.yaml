@@ -1,0 +1,122 @@
+---
+# hand-written:
+#   resource: read, update
+#   data source: read
+#   model: readGet
+#   helpers: notification_destination_logic.go
+#   tests: trap_destination_test.go (offline tests of the read, acceptance tests of v3, a host name and the rotation of a secret)
+#   why: the controller lists all trap receivers in one call, and a receiver whose address is a host name reads back without a server address (the host is its name).
+#   The update (PUT /alarm/v1/destination/trap) of the controller does not work: it answers HTTP 200 with an SQL exception in the body ("could not execute batch; SQL [insert into NotificationReceiver ...")
+name: Trap Destination
+rest_endpoint: /crosswork/alarm/v1/destination/trap
+get_rest_endpoint: /crosswork/alarm/v1/destination/trap
+id_from_attribute: true
+mutex: true
+# The receiver is a name on the whole cluster, so the acceptance test creates one receiver from the documentation range and the destroy removes it.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage a trap receiver for the notification destinations.
+ds_description: This data source can read a trap receiver of the notification destinations.
+attributes:
+  - model_name: name
+    type: String
+    id: true
+    mandatory: true
+    requires_replace: true
+    string_min_length: 1
+    string_max_length: 128
+    description: Name of the receiver. A receiver whose address is a host name takes the host name as its name
+    example: cwtest-trap
+  - model_name: serverAddress
+    tf_name: address
+    type: String
+    mandatory: true
+    description: IP address or host name of the receiver
+    example: 192.0.2.30
+  - model_name: notifyType
+    tf_name: address_type
+    type: String
+    enum_values: [IPADDRESS, DNS]
+    default_value: IPADDRESS
+    description: Whether the address is an IP address or a host name
+    example: IPADDRESS
+  - model_name: port
+    type: Int64
+    min_int: 100
+    max_int: 65535
+    default_value: 162
+    description: Port of the receiver
+    example: 162
+  - model_name: transportType
+    tf_name: transport_type
+    type: String
+    enum_values: [UDP, TCP]
+    default_value: UDP
+    description: Transport protocol
+    example: UDP
+  - model_name: snmpVersion
+    tf_name: snmp_version
+    type: String
+    enum_values: [VERSION_2C, VERSION_3]
+    default_value: VERSION_2C
+    description: SNMP version
+    example: VERSION_2C
+  - model_name: community
+    type: String
+    write_only: true
+    write_only_tf: true
+    description: SNMP v2c community
+    example: cwtest-community
+  - model_name: snmpV3UserName
+    tf_name: username
+    type: String
+    exclude_test: true
+    exclude_example: true
+    description: SNMP v3 user name
+    example: noc
+  - model_name: snmpV3AuthMode
+    tf_name: mode
+    type: String
+    exclude_test: true
+    exclude_example: true
+    enum_values: [AuthPriv, AuthNoPriv, NoAuthNoPriv]
+    description: SNMP v3 security mode
+    example: AuthPriv
+  - model_name: snmpV3AuthType
+    tf_name: auth_type
+    type: String
+    exclude_test: true
+    exclude_example: true
+    enum_values: [HMACMD5, HMACSHA]
+    description: SNMP v3 authentication type
+    example: HMACSHA
+  - model_name: snmpV3AuthPassphrase
+    tf_name: auth_password
+    type: String
+    write_only: true
+    write_only_tf: true
+    exclude_test: true
+    exclude_example: true
+    description: SNMP v3 authentication password
+    example: cwtest-auth-1234
+  - model_name: snmpV3PrivType
+    tf_name: privacy_type
+    type: String
+    exclude_test: true
+    exclude_example: true
+    enum_values: [NONE, DES, AES128, AES192, AES256, CiscoAES192, CiscoAES256]
+    description: SNMP v3 privacy type. `NONE` is for the mode `AuthNoPriv` and is refused with `AuthPriv`
+    example: AES128
+  - model_name: snmpV3PrivPassphrase
+    tf_name: privacy_password
+    type: String
+    write_only: true
+    write_only_tf: true
+    exclude_test: true
+    exclude_example: true
+    description: SNMP v3 privacy password
+    example: cwtest-priv-1234
+  - model_name: serverType
+    type: String
+    value: NORTH_BOUND

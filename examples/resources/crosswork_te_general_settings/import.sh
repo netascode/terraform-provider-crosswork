@@ -1,0 +1,1 @@
+terraform import crosswork_te_general_settings.example "te_general_settings"

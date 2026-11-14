@@ -1,0 +1,25 @@
+---
+name: L2VPN QoS Profile Ids
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/vpn-profiles/valid-provider-identifiers/qos-profile-identifier=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/vpn-profiles/valid-provider-identifiers
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage a QoS profile id of the L2VPN service model.
+ds_description: This data source can read a QoS profile id of the L2VPN service model.
+attributes:
+  - model_name: id
+    tf_name: name
+    data_path: ietf-l2vpn-ntw:qos-profile-identifier.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the QoS profile. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-l2-qos

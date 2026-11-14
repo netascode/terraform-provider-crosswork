@@ -1,0 +1,50 @@
+---
+# hand-written:
+#   resource: delete
+#   data source: -
+#   model: toBody, fromBody, updateFromBody
+#   helpers: metric_thresholds_logic.go
+#   tests: metric_thresholds_test.go (offline tests of the body and the read)
+#   why: the controller reads and writes one object keyed by the metric, each metric a list of levels; a destroy writes the defaults that the controller returns
+name: Metric Thresholds
+rest_endpoint: /crosswork/topology/v1/topology-service/topology/settings/metrics/set
+get_rest_endpoint: /crosswork/topology/v1/topology-service/topology/settings/metrics/get
+get_no_id: true
+post_update: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"metric_thresholds\"'
+# The thresholds belong to the whole cluster, so the acceptance test changes one metric and the destroy writes the defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the metric thresholds of the topology.
+ds_description: This data source can read the metric thresholds of the topology.
+attributes:
+  - model_name: thresholds
+    type: Map
+    allow_import_changes: true
+    mandatory: true
+    description: Thresholds by metric, `Utilization`, `Errors`, `Drops`, `Delay`, `Jitter`, `Loss` or `Power`. A metric that is not listed keeps its thresholds
+    map_key_example: Utilization
+    attributes:
+      - model_name: levels
+        type: List
+        mandatory: true
+        description: Levels of the metric, from the lowest value up. The last level of a percentage metric ends at 100 and the last level of `Delay` and `Jitter` is `CRITICAL` with -1; the controller drops any other `CRITICAL` row
+        example: '[{ severity = "HEALTHY", upper_value = 25 }, { severity = "CRITICAL", upper_value = 100 }]'
+        attributes:
+          - model_name: severity
+            type: String
+            mandatory: true
+            enum_values: [HEALTHY, MINOR, MAJOR, CRITICAL]
+            description: Severity of the level
+            example: CRITICAL
+          - model_name: upperValue
+            tf_name: upper_value
+            type: Float64
+            mandatory: true
+            description: Upper value of the level. Percentages are 0 to 100, `Delay` and `Jitter` are in microseconds
+            example: 100

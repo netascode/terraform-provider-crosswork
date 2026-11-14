@@ -1,0 +1,89 @@
+---
+name: Alarm Settings
+rest_endpoint: /crosswork/alarm/v1/settings
+get_rest_endpoint: /crosswork/alarm/v1/settings
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"securityAlertAgeout":30,"nonSecurityAlertAgeout":7,"deleteAllEvents":30,"deleteOldAlertDays":60,"systemAlertAgeout":60,"networkAlertAgeout":60,"auditAlertAgeout":30,"trapCollectionJobEnable":true,"syslogCollectionJobEnable":true}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"alarm_settings\"'
+# The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the cleanup options and the trap and syslog processing of alarms and events.
+ds_description: This data source can read the cleanup options and the trap and syslog processing of alarms and events.
+attributes:
+  - model_name: securityAlertAgeout
+    tf_name: security_device_alarms_cleared_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 30
+    description: Days after which cleared security device alarms are deleted
+    example: 31
+  - model_name: nonSecurityAlertAgeout
+    tf_name: non_security_device_alarms_cleared_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 7
+    description: Days after which cleared non-security device alarms are deleted
+    example: 8
+  - model_name: deleteAllEvents
+    tf_name: all_events_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 30
+    description: Days after which all events are deleted
+    example: 31
+  - model_name: deleteOldAlertDays
+    tf_name: device_alarms_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 60
+    description: Days after which all device alarms, active and cleared, are deleted
+    example: 61
+  - model_name: systemAlertAgeout
+    tf_name: system_alarms_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 60
+    description: Days after which all system alarms, active and cleared, are deleted
+    example: 62
+  - model_name: networkAlertAgeout
+    tf_name: network_alarms_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 60
+    description: Days after which all network alarms, active and cleared, are deleted
+    example: 63
+  - model_name: auditAlertAgeout
+    tf_name: audit_logs_days
+    type: Int64
+    min_int: 7
+    max_int: 365
+    default_value: 30
+    description: Days after which audit logs are deleted
+    example: 31
+  - model_name: trapCollectionJobEnable
+    tf_name: trap_processing
+    type: Bool
+    default_value: true
+    description: Process the traps of the devices
+    example: false
+  - model_name: syslogCollectionJobEnable
+    tf_name: syslog_processing
+    type: Bool
+    default_value: true
+    description: Process the syslog messages of the devices
+    example: false

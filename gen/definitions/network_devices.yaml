@@ -1,0 +1,333 @@
+---
+# hand-written:
+#   resource: create (reads an unset host name back), read, update
+#   data source: read
+#   model: -
+#   helpers: network_devices_logic.go
+#   tests: network_devices_update_test.go, network_devices_fields_test.go
+#   why: an update reads the node, writes the plan over it and sends it back, with the admin-down retry, the user tags and the provider link
+name: Network Devices
+rest_endpoint: /crosswork/inventory/v1/nodes
+get_rest_endpoint: /crosswork/inventory/v1/nodes/query
+get_body: '{"filter":{"inventory_id":"{id}"}}'
+get_no_id: true
+# The inventory id is the id: add, edit and delete accept it, though the controller also assigns a uuid.
+id_from_attribute: true
+# The edit replaces the whole node: a field left out is cleared.
+put_no_id: true
+remove_resource_on_empty_response: true
+delete_no_id: true
+delete_body: '{"data":[{"inventory_id":"{id}"}]}'
+get_before_delete: true
+# A device with no SNMP row needs a host name and a software type: no minimum test.
+skip_minimum_test: true
+doc_category: Devices
+res_description: This resource can manage a network device in inventory.
+attributes:
+  - model_name: inventory_id
+    data_path: data.0
+    tf_name: name
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Inventory id of the device. A change replaces the device
+    example: cwtest-gen-device
+  - model_name: host_name
+    data_path: data.0
+    type: String
+    computed: true
+    description: Host name of the device; needed when the device has no SNMP row. A device with an SNMP row reports its own host name, which replaces the value given here once Crosswork has collected the device; leave it unset to keep the host name the controller holds. A change needs the device admin down, which is done automatically
+    example: cwtest-device
+  - model_name: profile
+    data_path: data.0
+    tf_name: credential_profile
+    type: String
+    mandatory: true
+    description: Name of the credential profile, which should hold a credential for every protocol the device uses
+    example: cwtest-device-profile
+    test_value: crosswork_credential_profiles.device_test.id
+  - model_name: admin_state
+    data_path: data.0
+    type: String
+    default_value: ROBOT_ADMIN_STATE_DOWN
+    enum_values: [ROBOT_ADMIN_STATE_UP, ROBOT_ADMIN_STATE_DOWN, ROBOT_ADMIN_STATE_UNMANAGED]
+    description: Admin state of the device. Crosswork keeps a device that is not attached to a data gateway admin down. Attaching a device to a data gateway brings it admin up. The default is `ROBOT_ADMIN_STATE_DOWN`; `ROBOT_ADMIN_STATE_UNMANAGED` cannot be used while a device is attached to a data gateway
+    example: ROBOT_ADMIN_STATE_UP
+  - model_name: reachability_check
+    data_path: data.0
+    type: String
+    default_value: REACH_CHECK_ENABLE
+    enum_values: [REACH_CHECK_ENABLE, REACH_CHECK_DISABLE]
+    description: Whether Crosswork checks that the device is reachable. A change needs the device admin down, which is done automatically
+    example: REACH_CHECK_ENABLE
+  - model_name: serial_number
+    data_path: data.0
+    type: String
+    description: Serial number of the device
+    example: FOC1234ABCD
+  - model_name: mac
+    data_path: data.0
+    tf_name: mac_address
+    type: String
+    string_patterns: ['^([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}$']
+    description: MAC address of the device
+    example: 00:1b:44:11:3a:b7
+  - model_name: encryption
+    data_path: data.0
+    type: String
+    description: SNMP encryption of the device in the lower case form, for example `aes128-ctr`; leave it unset for none
+    example: aes128-ctr
+  - model_name: device_type
+    data_path: data.0.product_info
+    type: String
+    default_value: NODE_TYPE_ROUTER
+    enum_values: [NODE_TYPE_ROUTER, NODE_TYPE_SWITCH, NODE_TYPE_UNKNOWN]
+    description: Device type
+    example: NODE_TYPE_ROUTER
+  - model_name: software_type
+    data_path: data.0.product_info
+    type: String
+    description: Software type, for example `IOS XR`; needed when the device has no SNMP row
+    example: IOS XR
+  - model_name: software_version
+    data_path: data.0.product_info
+    type: String
+    description: Software version. Crosswork overwrites it after it discovers the device, so set it only for a device it cannot reach
+    exclude_test: true
+    exclude_example: true
+  - model_name: product_type
+    data_path: data.0.product_info
+    type: String
+    description: Product type. Crosswork overwrites it after it discovers the device, so set it only for a device it cannot reach
+    exclude_test: true
+    exclude_example: true
+  - model_name: syslog_format
+    data_path: data.0.product_info
+    type: String
+    default_value: RFC_5424
+    enum_values: [RFC_5424, RFC_3164, RFC_UNKNOWN]
+    description: Syslog format of the device
+    example: RFC_5424
+  - model_name: capability
+    data_path: data.0.product_info
+    tf_name: capabilities
+    type: Set
+    element_type: String
+    description: Capabilities of the device, any of `YANG_MDT`, `YANG_CLI`, `SNMP` and `GNMI`; `SNMP` needs an SNMP row. A change needs the device admin down, which is done automatically
+    example: YANG_CLI
+  - model_name: cli_cache_enabled
+    data_path: data.0.Inventory
+    type: Bool
+    default_value: false
+    description: Whether Crosswork caches the CLI output of the device
+    example: false
+  # The wire key under providers is the provider name: generated at a placeholder path, moved by the manual create, read and update
+  # (network_devices_logic.go).
+  - model_name: provider_name
+    data_path: data.0.providers_family.ROBOT_PROVIDER_NSO.providers
+    tf_name: provider_profile
+    type: String
+    description: Name of the NSO provider profile that manages the device
+    example: nso
+  - model_name: connectivity_info
+    data_path: data.0
+    tf_name: connectivity
+    type: List
+    mandatory: true
+    description: Connectivity rows, one per protocol. A change to an address, a prefix length or a port needs the device admin down, which is done automatically
+    attributes:
+      - model_name: type
+        tf_name: protocol
+        type: String
+        id: true
+        mandatory: true
+        description: Protocol to connect to the device
+        enum_values: [ROBOT_MSVC_TRANS_SSH, ROBOT_MSVC_TRANS_SNMP, ROBOT_MSVC_TRANS_NETCONF, ROBOT_MSVC_TRANS_HTTP, ROBOT_MSVC_TRANS_HTTPS, ROBOT_MSVC_TRANS_TELNET, ROBOT_MSVC_TRANS_GNMI, ROBOT_MSVC_TRANS_GRPC]
+        example: ROBOT_MSVC_TRANS_SSH
+      - model_name: inet_addr
+        data_path: ipaddrs.0
+        tf_name: ip_address
+        type: String
+        mandatory: true
+        description: IPv4 address of the device, unique on the Crosswork cluster
+        example: 192.0.2.231
+      - model_name: inet_af
+        data_path: ipaddrs.0
+        type: Int64
+        value: 0
+        description: Address family, always IPv4
+      - model_name: mask
+        data_path: ipaddrs.0
+        tf_name: prefix_length
+        type: Int64
+        model_type_string: true
+        mandatory: true
+        min_int: 1
+        max_int: 32
+        description: Prefix length of the address
+        example: 24
+      - model_name: port
+        type: Int64
+        mandatory: true
+        min_int: 1
+        max_int: 65535
+        description: Port of the protocol, for example 22 for SSH and 161 for SNMP; Crosswork refuses a row without one
+        example: 22
+      - model_name: timeout
+        type: Int64
+        model_type_string: true
+        description: Timeout in seconds
+        example: 60
+      - model_name: encoding_type
+        type: String
+        enum_values: [JSON, BYTES, PROTO, ASCII, JSON_IETF]
+        description: Encoding, required for GNMI and GRPC rows
+        exclude_test: true
+      - model_name: trap_source_ip
+        type: String
+        description: Trap source IPv4 address, for the SNMP row
+        exclude_test: true
+      - model_name: disable_trap_community_check
+        type: Bool
+        default_value: false
+        description: Whether to skip the trap community check, for the SNMP row
+        exclude_test: true
+  - model_name: global_isis_system_id
+    data_path: data.0.routing_info
+    tf_name: isis_system_id
+    type: String
+    description: ISIS system id
+    example: 0000.0000.0001
+  - model_name: global_ospf_router_id
+    data_path: data.0.routing_info
+    tf_name: ospf_router_id
+    type: String
+    description: OSPF router id
+    example: 192.0.2.1
+  - model_name: te_router_id
+    data_path: data.0.routing_info
+    type: String
+    description: TE router id. A change needs the device admin down, which is done automatically
+    example: 192.0.2.2
+  - model_name: ipv6_router_id
+    data_path: data.0.routing_info
+    type: String
+    description: IPv6 router id
+    example: 2001:db8::1
+  - model_name: telemetry_intf_src_vrf
+    data_path: data.0.routing_info
+    tf_name: telemetry_vrf
+    type: String
+    description: VRF of the streaming telemetry source interface
+    example: default
+  - model_name: telemetry_intf_src_name
+    data_path: data.0.routing_info
+    tf_name: telemetry_source_interface
+    type: String
+    description: Source interface of the streaming telemetry
+    example: Loopback0
+  - model_name: is_opt_out_of_mdt_collection_config_enabled
+    data_path: data.0.routing_info
+    tf_name: telemetry_opt_out_of_mdt_config
+    type: Bool
+    default_value: false
+    description: Whether to opt out of the MDT configuration
+    example: false
+  - model_name: building
+    data_path: data.0.geo_info
+    tf_name: location_building
+    type: String
+    description: Building
+    example: Building 1
+  - model_name: street
+    data_path: data.0.geo_info
+    tf_name: location_street
+    type: String
+    description: Street
+    example: Main Street
+  - model_name: city
+    data_path: data.0.geo_info
+    tf_name: location_city
+    type: String
+    description: City
+    example: Amsterdam
+  - model_name: state
+    data_path: data.0.geo_info
+    tf_name: location_state
+    type: String
+    description: State
+    example: North Holland
+  - model_name: country
+    data_path: data.0.geo_info
+    tf_name: location_country
+    type: String
+    description: Country
+    example: Netherlands
+  - model_name: region
+    data_path: data.0.geo_info
+    tf_name: location_region
+    type: String
+    description: Region
+    example: EMEA
+  - model_name: zip
+    data_path: data.0.geo_info
+    tf_name: location_zip
+    type: String
+    description: Zip code
+    example: "1011"
+  - model_name: value
+    data_path: data.0.geo_info.coordinates.latitude
+    tf_name: location_latitude
+    type: Float64
+    min_float: -90
+    max_float: 90
+    description: Latitude; set it together with the longitude
+    example: 52.37
+  - model_name: value
+    data_path: data.0.geo_info.coordinates.longitude
+    tf_name: location_longitude
+    type: Float64
+    min_float: -180
+    max_float: 180
+    description: Longitude; set it together with the latitude
+    example: 4.89
+  - model_name: value
+    data_path: data.0.geo_info.coordinates.altitude
+    tf_name: location_altitude
+    type: Float64
+    description: Altitude
+    example: 10
+  - model_name: tags
+    data_path: data.0
+    type: Set
+    description: User-defined tags of the device, which must exist as tags. The tags that Crosswork adds itself are never managed
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Tag name
+        example: cwtest-tag
+        test_value: crosswork_tags.device_test.id
+
+test_prerequisites: |
+  resource "crosswork_tags" "device_test" {
+    name     = "cwtest-gen-device-tag"
+    category = "cwtest-category"
+  }
+
+  resource "crosswork_credential_profiles" "device_test" {
+    profile = "cwtest-gen-device-profile"
+    credentials = [
+      {
+        type      = "ROBOT_USERPASS_SSH"
+        user_name = "cwtest"
+        password  = "Cwtest-Password-1"
+      }
+    ]
+    snmpv2_read_community_wo          = "public"
+    snmpv2_read_community_wo_version  = 1
+    snmpv2_write_community_wo         = "private"
+    snmpv2_write_community_wo_version = 1
+  }

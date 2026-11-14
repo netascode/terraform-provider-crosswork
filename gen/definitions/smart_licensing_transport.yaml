@@ -1,0 +1,52 @@
+---
+name: Smart Licensing Transport
+rest_endpoint: /crosswork/clms/v1/transport
+get_rest_endpoint: /crosswork/clms/v1/get-transport
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"mode":"DIRECT","url":"https://smartreceiver.cisco.com/licservice/license"}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"smart_licensing_transport\"'
+# The setting belongs to the whole cluster, so the acceptance test changes it and the destroy writes the default back.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the Smart Licensing transport settings of the cluster.
+ds_description: This data source can read the Smart Licensing transport settings of the cluster.
+attributes:
+  - model_name: mode
+    type: String
+    enum_values: [DIRECT, ON_PREM]
+    default_value: DIRECT
+    description: Transport mode, `DIRECT` (the Cisco licensing servers) or `ON_PREM` (an on-prem Smart Software Manager)
+    example: DIRECT
+  - model_name: url
+    type: String
+    string_min_length: 1
+    string_max_length: 2048
+    default_value: https://smartreceiver.cisco.com/licservice/license
+    description: URL of the licensing server. The controller ignores it in `DIRECT` mode and keeps the Cisco URL, and requires the URL of the Smart Software Manager in `ON_PREM` mode
+    example: https://smartreceiver.cisco.com/licservice/license
+  - model_name: host
+    response_data_path: proxy.host
+    data_path: proxy
+    tf_name: proxy_host
+    type: String
+    string_min_length: 1
+    string_max_length: 255
+    description: IP address or host name of the HTTP or HTTPS proxy. Only in `DIRECT` mode, and set together with `proxy_port`
+    example: 192.0.2.1
+  - model_name: port
+    response_data_path: proxy.port
+    data_path: proxy
+    tf_name: proxy_port
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: Port of the HTTP or HTTPS proxy. Set together with `proxy_host`
+    example: 8080

@@ -1,0 +1,57 @@
+---
+# hand-written:
+#   resource: create, read, update, delete
+#   data source: - (no_data_source)
+#   model: -
+#   helpers: assign_ports_to_port_group_logic.go
+#   tests: assign_ports_to_port_group_members_test.go
+#   why: ports are chosen from those Crosswork has collected, added by port id and removed as full objects
+name: Assign Ports To Port Group
+rest_endpoint: /crosswork/grouping/v1/grouping/port
+no_data_source: true
+get_no_id: true
+id_from_attribute: true
+# Ports exist only on a collected device, so there is no minimum test.
+skip_minimum_test: true
+doc_category: Devices
+res_description: This resource makes a list of ports that are members of a port group.
+attributes:
+  - model_name: groupUuid
+    tf_name: group_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Id of the port group
+    example: 16f9288d-ab96-4ea5-8593-94b30cbf00ee
+    test_value: crosswork_port_groups.assign_ports_test.id
+  - model_name: ports
+    type: Set
+    mandatory: true
+    description: The ports that are members of the group; an empty list removes them all
+    attributes:
+      - model_name: deviceUuid
+        tf_name: device
+        type: String
+        id: true
+        mandatory: true
+        description: Inventory id of the device that has the port
+        example: build-router-1
+      - model_name: portName
+        tf_name: port_name
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the port on the device
+        example: GigabitEthernet0/0/0/0
+
+# The device is not created here: the test needs one that Crosswork has collected.
+test_prerequisites: |
+  data "crosswork_groupings" "assign_ports_root" {
+    classifier = "UserDefinedPorts"
+  }
+
+  resource "crosswork_port_groups" "assign_ports_test" {
+    name        = "cwtest-gen-assign-ports"
+    parent_uuid = [for group in data.crosswork_groupings.assign_ports_root.items : group.id if group.discovery_type == "StaticSystem" && group.subgroups_allowed][0]
+  }

@@ -1,0 +1,1 @@
+terraform import crosswork_data_gateway_global_parameters.example "data_gateway_global_parameters"

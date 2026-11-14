@@ -1,0 +1,149 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: collection_jobs_logic.go
+#   tests: collection_jobs_stub_test.go, resource_crosswork_collection_jobs_unit_test.go, data_source_crosswork_collection_jobs_unit_test.go, resource_crosswork_collection_jobs_test.go
+#   not modelled: the data source adds the computed `status`, `phase` and `life_cycle_state`, which change while the job runs and so are not in the resource
+#   why: the job is sent as one body of paired input and output sensor lists, with the device names, the destination name and the cadence in seconds turned into ids and milliseconds; a create and an update are the same PUT; a missing job is an error in HTTP 200 and a deleted job can stay listed after the delete
+name: Collection Jobs
+rest_endpoint: /crosswork/collection/v1/collectionjob
+get_rest_endpoint: /crosswork/collection/v1/collectionjob/config/query
+no_resource: true
+no_data_source: true
+get_no_id: true
+data_source_no_id: true
+# The acceptance test needs a cluster with Crosswork Data Gateway for the destination.
+skip_minimum_test: true
+doc_category: Data Gateway
+res_description: This resource can manage a bulk collection job of Crosswork.
+ds_description: This data source can read a bulk collection job of Crosswork by its application id and context id, with its status.
+attributes:
+  - model_name: application_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Application id of the job, which with the context id identifies it. A change replaces the job
+    example: cwtest-app
+  - model_name: context_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Context id of the job, unique within the application id. A change replaces the job
+    example: cwtest-context
+  - model_name: collector_type
+    type: String
+    requires_replace: true
+    mandatory: true
+    enum_values: [CLI, SNMP]
+    description: Collector type of the job. A job holds only the sensors of its collector type, `cli_sensors` for `CLI` and `snmp_sensors` for `SNMP`. A change replaces the job
+    example: CLI
+  - model_name: devices
+    type: Set
+    element_type: String
+    requires_replace: true
+    description: Inventory ids of the devices the job collects from, in any order. Set either this or `device_tag`. Crosswork does not accept a change of the devices of a job, so a change replaces the job
+    example: build-router-1
+  - model_name: device_tag
+    type: String
+    requires_replace: true
+    description: Tag whose devices the job collects from, resolved by Crosswork when the job runs. Set either this or `devices`. A change replaces the job
+    example: cwtest-collection-tag
+  - model_name: destination
+    type: String
+    mandatory: true
+    description: Name of the data destination that receives the output, as `crosswork_data_gateway_destinations` names it
+    example: cwtest-dest-kafka
+  - model_name: cli_sensors
+    type: List
+    description: CLI commands the job runs on the devices, for the collector type `CLI`. Each command has its own cadence and topic
+    attributes:
+      - model_name: command
+        type: String
+        mandatory: true
+        description: CLI command to run, for example `show version`
+        example: show version
+      - model_name: cadence
+        type: Int64
+        mandatory: true
+        min_int: 1
+        description: Seconds between two runs of the command, at least 1
+        example: 60
+      - model_name: topic
+        type: String
+        mandatory: true
+        description: Topic the output of the command is sent to on the destination
+        example: cwtest-topic
+  - model_name: snmp_sensors
+    type: List
+    description: SNMP objects the job collects from the devices, for the collector type `SNMP`. Each object has its own cadence and topic
+    attributes:
+      - model_name: oid
+        type: String
+        mandatory: true
+        description: OID to collect, one for each sensor
+        example: 1.3.6.1.2.1.1.5
+      - model_name: operation
+        type: String
+        mandatory: true
+        enum_values: [WALK, SCALAR, TABLE, COLUMN]
+        description: SNMP operation
+        example: WALK
+      - model_name: cadence
+        type: Int64
+        mandatory: true
+        min_int: 1
+        description: Seconds between two collections of the OID, at least 1
+        example: 60
+      - model_name: topic
+        type: String
+        mandatory: true
+        description: Topic the output of the object is sent to on the destination
+        example: cwtest-topic
+  - model_name: status
+    type: String
+    computed: true
+    exclude_test: true
+    description: Status of the job, for example `READY`; the data source only
+    example: READY
+  - model_name: phase
+    type: String
+    computed: true
+    exclude_test: true
+    description: Phase of the job, for example `ACTIVE`; the data source only
+    example: ACTIVE
+  - model_name: life_cycle_state
+    type: String
+    computed: true
+    exclude_test: true
+    description: Life cycle state of the job, for example `SUCCESS_LIFE_CYCLE_STATE`; the data source only
+    example: SUCCESS_LIFE_CYCLE_STATE
+
+test_prerequisites: |
+  resource "crosswork_data_gateway_destinations" "collection_test" {
+    name               = "cwtest-gen-collection-destination"
+    data_source        = "data-gateway"
+    server_type        = "kafka"
+    encoding           = "gpbkv"
+    compression_method = "snappy"
+    max_message_size   = 100000000
+    buffer_memory      = 52428800
+    batch_size         = 1048576
+    linger_time        = 2000
+    request_timeout    = 30
+    connections = [
+      {
+        address       = "192.0.2.40"
+        prefix_length = 24
+        port          = 9192
+      }
+    ]
+  }
+
+  resource "crosswork_tags" "collection_test" {
+    name     = "cwtest-gen-collection-tag"
+    category = "cwtest-category"
+  }

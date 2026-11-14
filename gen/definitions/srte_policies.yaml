@@ -1,0 +1,376 @@
+---
+name: SRTE Policies
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-policies:policies/policy=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-policies:policies
+plan_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-policies:policies/policy-plan=%v
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: Traffic Engineering
+res_description: This resource can manage an SR-TE policy.
+ds_description: This data source can read an SR-TE policy.
+attributes:
+  - model_name: name
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Policy name. Letters, digits, `.`, `_` and `-`; a space or a slash is refused.
+    example: cwtest-policy
+  - model_name: name
+    tf_name: head_end
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.head-end.0
+    type: String
+    mandatory: true
+    reference_nso_device: true
+    description: Head end of the policy, the name of a device in the Crosswork inventory that is onboarded to NSO. A policy has exactly one head end.
+    example: build-router-1
+  - model_name: tail-end
+    tf_name: tail_end
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: String
+    mandatory: true
+    description: Tail end of the policy, an IP address. An IPv6 address needs SRv6 and SRv6 needs an IPv6 address.
+    example: 192.0.2.61
+  - model_name: color
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: Int64
+    mandatory: true
+    min_int: 1
+    max_int: 4294967295
+    description: Color of the policy. The head end holds one policy for a color and a tail end.
+    example: 999
+  - model_name: binding-sid
+    tf_name: binding_sid
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: Int64
+    min_int: 16
+    max_int: 1048575
+    description: MPLS binding SID of the policy
+    example: 24001
+  - model_name: bandwidth
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: Int64
+    min_int: 1
+    max_int: 4294967295
+    description: Requested bandwidth in kbps. Not supported together with SRv6.
+    example: 1000
+  - model_name: source-address
+    tf_name: source_address
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: String
+    description: Source address of the policy. It has the address family of the tail end.
+    example: 192.0.2.1
+  - model_name: locator-name
+    tf_name: srv6_locator_name
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.srv6.locator
+    type: String
+    exclude_test: true
+    description: SRv6 locator name. Setting any SRv6 attribute turns on SRv6 for the policy
+    example: cwtest-locator
+  - model_name: behavior
+    tf_name: srv6_locator_behavior
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.srv6.locator
+    type: String
+    enum_values: [ub6-insert-reduced]
+    exclude_test: true
+    description: SRv6 behavior of the locator
+    example: ub6-insert-reduced
+  - model_name: binding-sid-type
+    tf_name: srv6_locator_binding_sid_type
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.srv6.locator
+    type: String
+    enum_values: [srv6-dynamic]
+    exclude_test: true
+    description: SRv6 binding SID type
+    example: srv6-dynamic
+  - model_name: profile
+    tf_name: delay_measurement_profile
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.delay-measurement
+    type: String
+    description: Delay measurement profile of the head end. Not `default`; leave it unset for the default profile. Use this or liveness detection.
+    example: delay-profile-1
+  - model_name: delay-exceeded
+    tf_name: delay_measurement_logging_delay_exceeded
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.delay-measurement.logging
+    type: Bool
+    type_yang_bool: empty
+    description: Log when the delay is exceeded. Set to `true` or leave unset.
+    example: true
+  - model_name: profile
+    tf_name: liveness_detection_profile
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.liveness-detection
+    type: String
+    exclude_test: true
+    description: Liveness detection profile. Not `default`. Use this or delay measurement.
+    example: cwtest-liveness
+  - model_name: backup
+    tf_name: liveness_detection_backup
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.liveness-detection
+    type: String
+    exclude_test: true
+    description: Backup liveness detection profile. Needs a profile.
+    example: cwtest-liveness-backup
+  - model_name: invalidation-action
+    tf_name: liveness_detection_invalidation_action
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.liveness-detection
+    type: String
+    enum_values: [down, none]
+    exclude_test: true
+    description: Action when the liveness session invalidates the path
+    example: down
+  - model_name: session-state-change
+    tf_name: liveness_detection_logging_session_state_change
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement.liveness-detection.logging
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Log a change of the liveness session state. Set to `true` or leave unset.
+    example: true
+  - model_name: reverse-path-label
+    tf_name: performance_measurement_reverse_path_label
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.performance-measurement
+    type: Int64
+    min_int: 16
+    max_int: 1048575
+    description: Reverse path label of the performance measurement
+    example: 2000
+  - model_name: metric-relative-value
+    tf_name: auto_route_metric_relative
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.auto-route.auto-route-metric
+    type: Int64
+    min_int: -10
+    max_int: 10
+    description: Relative auto-route metric. Use this or the constant metric.
+    example: -5
+  - model_name: metric-constant-value
+    tf_name: auto_route_metric_constant
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.auto-route.auto-route-metric
+    type: Int64
+    min_int: 1
+    max_int: 2147483647
+    exclude_test: true
+    description: Constant auto-route metric. Use this or the relative metric.
+    example: 10
+  - model_name: include-prefix
+    tf_name: auto_route_include_prefixes
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.auto-route.include-prefixes
+    type: Set
+    description: IPv4 prefixes that the policy steers. Without a prefix the device includes all of them.
+    attributes:
+      - model_name: prefix-address
+        tf_name: prefix_address
+        type: String
+        id: true
+        mandatory: true
+        description: IPv4 prefix with its length
+        example: 10.250.0.0/16
+  - model_name: force-sr-include
+    tf_name: auto_route_force_sr_include
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.auto-route
+    type: Bool
+    type_yang_bool: empty
+    description: Steer the prefixes into the policy even when the router prefers another next hop. Set to `true` or leave unset.
+    example: true
+  - model_name: forward-class
+    tf_name: auto_route_forward_class
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0.auto-route
+    type: Int64
+    min_int: 0
+    max_int: 7
+    description: Forward class of the steered traffic
+    example: 2
+  - model_name: path
+    tf_name: paths
+    data_path: cisco-sr-te-cfp-sr-policies:policy.0
+    type: List
+    mandatory: true
+    description: Candidate paths of the policy, at least one. A path is explicit (`explicit_*`) or dynamic (`dynamic_*`), not both.
+    attributes:
+      - model_name: preference
+        type: Int64
+        id: true
+        mandatory: true
+        min_int: 1
+        max_int: 65535
+        description: Preference of the path, unique in the policy
+        example: 100
+      - model_name: sid-list
+        tf_name: explicit_sid_lists
+        data_path: explicit
+        type: List
+        description: SID lists of an explicit path, with their weights. At least one for an explicit path.
+        attributes:
+          - model_name: name
+            type: String
+            id: true
+            mandatory: true
+            description: Name of a SID list
+            example: cwtest-sid-list
+            test_value: crosswork_srte_sid_lists.test.name
+          - model_name: weight
+            type: Int64
+            min_int: 1
+            max_int: 4294967295
+            description: Weight of the SID list when the path has several
+            example: 10
+      - model_name: rule
+        tf_name: explicit_affinity_rules
+        data_path: explicit.constraints.affinity
+        type: List
+        description: Affinity rules of an explicit path
+        attributes:
+          - model_name: action
+            type: String
+            id: true
+            mandatory: true
+            enum_values: [exclude-any, include-all, include-any]
+            description: Rule action
+            example: include-any
+          - model_name: color
+            tf_name: colors
+            type: Set
+            element_type: String
+            description: Names of the affinity colors of the rule. NSO returns them sorted.
+            example: red
+      - model_name: sid-algorithm
+        tf_name: explicit_segments_sid_algorithm
+        data_path: explicit.constraints.segments
+        type: Int64
+        min_int: 128
+        max_int: 255
+        description: SID algorithm constraint of an explicit path
+        example: 128
+      - model_name: type
+        tf_name: explicit_disjoint_path_type
+        data_path: explicit.constraints.disjoint-path
+        type: String
+        enum_values: [link, node, srlg, srlg-node]
+        description: Disjointness type of an explicit path. With the group id it makes the paths of the group disjoint.
+        example: link
+      - model_name: group-id
+        tf_name: explicit_disjoint_path_group_id
+        data_path: explicit.constraints.disjoint-path
+        type: Int64
+        min_int: 1
+        max_int: 65535
+        description: Disjoint group id of an explicit path. Required with the type.
+        example: 1
+      - model_name: sub-id
+        tf_name: explicit_disjoint_path_sub_id
+        data_path: explicit.constraints.disjoint-path
+        type: Int64
+        min_int: 1
+        max_int: 65535
+        description: Disjoint sub group id of an explicit path
+        example: 1
+      - model_name: pce
+        tf_name: dynamic_pce
+        data_path: dynamic
+        type: Bool
+        type_yang_bool: presence
+        exclude_test: true
+        description: Delegate the path computation to the PCE. Set to `true` or leave unset.
+        example: true
+      - model_name: metric-type
+        tf_name: dynamic_metric_type
+        data_path: dynamic
+        type: String
+        enum_values: [hopcount, igp, latency, te]
+        exclude_test: true
+        description: Metric type of the path computation of a dynamic path
+        example: igp
+      - model_name: absolute
+        tf_name: dynamic_metric_margin_absolute
+        data_path: dynamic.metric-margin
+        type: Int64
+        min_int: 0
+        max_int: 2147483647
+        exclude_test: true
+        description: Absolute metric margin of a dynamic path. Use this or the relative margin.
+        example: 5
+      - model_name: relative
+        tf_name: dynamic_metric_margin_relative
+        data_path: dynamic.metric-margin
+        type: Int64
+        min_int: 0
+        max_int: 2147483647
+        exclude_test: true
+        description: Relative metric margin of a dynamic path in percent. Use this or the absolute margin.
+        example: 10
+      - model_name: sid-limit
+        tf_name: dynamic_sid_limit
+        data_path: dynamic.constraints
+        type: Int64
+        min_int: 1
+        max_int: 255
+        exclude_test: true
+        description: Maximum number of SIDs of a dynamic path.
+        example: 6
+      - model_name: rule
+        tf_name: dynamic_affinity_rules
+        data_path: dynamic.constraints.affinity
+        type: List
+        exclude_test: true
+        description: Affinity rules of a dynamic path
+        attributes:
+          - model_name: action
+            type: String
+            id: true
+            mandatory: true
+            enum_values: [exclude-any, include-all, include-any]
+            description: Rule action
+            example: include-any
+          - model_name: color
+            tf_name: colors
+            type: Set
+            element_type: String
+            description: Names of the affinity colors of the rule. NSO returns them sorted.
+            example: red
+      - model_name: sid-algorithm
+        tf_name: dynamic_segments_sid_algorithm
+        data_path: dynamic.constraints.segments
+        type: Int64
+        min_int: 128
+        max_int: 255
+        exclude_test: true
+        description: SID algorithm constraint of a dynamic path
+        example: 129
+      - model_name: type
+        tf_name: dynamic_disjoint_path_type
+        data_path: dynamic.constraints.disjoint-path
+        type: String
+        enum_values: [link, node, srlg, srlg-node]
+        exclude_test: true
+        description: Disjointness type of a dynamic path. With the group id it makes the paths of the group disjoint.
+        example: node
+      - model_name: group-id
+        tf_name: dynamic_disjoint_path_group_id
+        data_path: dynamic.constraints.disjoint-path
+        type: Int64
+        min_int: 1
+        max_int: 65535
+        exclude_test: true
+        description: Disjoint group id of a dynamic path. Required with the type.
+        example: 2
+      - model_name: sub-id
+        tf_name: dynamic_disjoint_path_sub_id
+        data_path: dynamic.constraints.disjoint-path
+        type: Int64
+        min_int: 1
+        max_int: 65535
+        exclude_test: true
+        description: Disjoint sub group id of a dynamic path
+        example: 1
+
+test_prerequisites: |
+  resource "crosswork_srte_sid_lists" "test" {
+    name = "cwtest-policy-sid-list"
+    sids = [{ index = 1, label = 16001 }]
+  }

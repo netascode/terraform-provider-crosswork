@@ -1,0 +1,143 @@
+---
+name: Provider Profiles
+rest_endpoint: /crosswork/inventory/v1/providers
+get_rest_endpoint: /crosswork/inventory/v1/providers/query
+get_body: '{"filter":{"name":"{id}"},"filterData":{"PageSize":10,"Criteria":""}}'
+get_no_id: true
+id_from_attribute: true
+# The update replaces the whole record: a property, a connection or a model left out is removed.
+put_no_id: true
+remove_resource_on_empty_response: true
+delete_no_id: true
+delete_body: '{"providers":[{"name":"{id}"}]}'
+get_before_delete: true
+# A connection needs an address or an FQDN, both optional: no minimum test.
+skip_minimum_test: true
+doc_category: Administration
+res_description: This resource can manage a provider profile.
+# Requests wrap the provider in "providers", the read answers under "data".
+attributes:
+  - model_name: name
+    data_path: providers.0
+    response_data_path: data.0.name
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Provider name, unique on the Crosswork cluster
+    example: cwtest-provider-profiles
+  - model_name: family
+    data_path: providers.0
+    response_data_path: data.0.family
+    type: String
+    mandatory: true
+    requires_replace: true
+    description: Provider family; the controller stores the SR PCE family of the Add Provider form as `ROBOT_PROVIDER_XTC`
+    enum_values: [ROBOT_PROVIDER_NSO, ROBOT_PROVIDER_EPNM, ROBOT_PROVIDER_WAE, ROBOT_PROVIDER_CSM, ROBOT_PROVIDER_XTC, ROBOT_PROVIDER_SYSLOG_STORAGE, ROBOT_PROVIDER_SR_PCE, ROBOT_PROVIDER_ALERT, ROBOT_PROVIDER_DESTINATION, ROBOT_PROVIDER_OPTIMA, ROBOT_PROVIDER_PROXY, ROBOT_PROVIDER_ONC, ROBOT_PROVIDER_ACCEDIAN_PROXY, ROBOT_PROVIDER_CROSSWORK_AI]
+    example: ROBOT_PROVIDER_NSO
+    # An all-in-one install refuses a second NSO provider, so the tests use another family.
+    test_value: '"ROBOT_PROVIDER_EPNM"'
+  - model_name: profile
+    data_path: providers.0
+    response_data_path: data.0.profile
+    type: String
+    mandatory: true
+    description: Name of the credential profile, which must hold a username and password for every protocol the provider uses
+    example: cwtest-provider-profile
+    test_value: crosswork_credential_profiles.provider_test.id
+  - model_name: connectivity_info
+    tf_name: connectivity
+    data_path: providers.0
+    response_data_path: data.0.connectivity_info
+    type: List
+    mandatory: true
+    description: Connections to the provider, one per protocol; each uses an IP address or an FQDN
+    attributes:
+      - model_name: type
+        tf_name: protocol
+        type: String
+        id: true
+        mandatory: true
+        description: Protocol
+        enum_values: [ROBOT_MSVC_TRANS_SSH, ROBOT_MSVC_TRANS_NETCONF, ROBOT_MSVC_TRANS_HTTP, ROBOT_MSVC_TRANS_HTTPS, ROBOT_MSVC_TRANS_TCP, ROBOT_MSVC_TRANS_GRPC, ROBOT_MSVC_TRANS_GNMI]
+        example: ROBOT_MSVC_TRANS_SSH
+      - model_name: inet_addr
+        data_path: ipaddrs.0
+        tf_name: ip_address
+        type: String
+        description: IPv4 address of the provider; leave it unset when `fqdn_host_name` is used
+        example: 192.0.2.50
+      - model_name: host_name
+        data_path: fqdn
+        tf_name: fqdn_host_name
+        type: String
+        description: Host name part of the FQDN of the provider; leave it unset when `ip_address` is used
+        exclude_test: true
+        exclude_example: true
+      - model_name: domain_name
+        data_path: fqdn
+        tf_name: fqdn_domain_name
+        type: String
+        description: Domain name part of the FQDN of the provider
+        exclude_test: true
+        exclude_example: true
+      - model_name: port
+        type: Int64
+        mandatory: true
+        description: Port
+        min_int: 1
+        max_int: 65535
+        example: 22
+      - model_name: timeout
+        type: Int64
+        model_type_string: true
+        description: Timeout in seconds, the controller uses 30 when it is not set
+        example: 60
+      - model_name: encoding_type
+        type: String
+        description: Encoding of a gNMI or gRPC connection, required for the gNMI protocol
+        enum_values: [JSON, BYTES, PROTO, ASCII, JSON_IETF, XML, YANG]
+        exclude_test: true
+        exclude_example: true
+  - model_name: certificate_name
+    data_path: providers.0
+    response_data_path: data.0.certificate_name
+    type: String
+    description: Name of the certificate profile of the provider, required by some families (Accedian proxy) and checked to exist
+    exclude_test: true
+    exclude_example: true
+  - model_name: supported_models
+    data_path: providers.0
+    response_data_path: data.0.supported_models
+    type: List
+    description: Device models the provider supports, required for the NSO family
+    attributes:
+      - model_name: model_prefix
+        type: String
+        id: true
+        mandatory: true
+        description: Model prefix
+        enum_values: [Cisco-IOS-XR, Cisco-NX-OS, Cisco-IOS-XE]
+        example: Cisco-IOS-XR
+      - model_name: model_version
+        type: String
+        mandatory: true
+        description: Model version
+        example: 7.8.2
+  - model_name: properties
+    data_path: providers.0
+    response_data_path: data.0.properties
+    type: Map
+    element_type: String
+    description: Provider properties such as `nso_crosslaunch_url`, `embedded_nso` or `webui-root-resource`, as key and value
+    example: '{ nso_crosslaunch_url = "https://nso.example.invalid/nso" }'
+
+test_prerequisites: |
+  resource "crosswork_credential_profiles" "provider_test" {
+    profile = "cwtest-provider-profile"
+    credentials = [{
+      type      = "ROBOT_USERPASS_SSH"
+      user_name = "cwtest"
+      password  = "Cwtest-Password-1"
+    }]
+  }

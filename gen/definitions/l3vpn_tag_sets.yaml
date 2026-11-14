@@ -1,0 +1,35 @@
+---
+# an L3VPN tag set of the L3VPN function pack, written through the Crosswork NSO proxy.
+# The create is a POST on the parent container (a duplicate is refused), the update is a PUT of the whole object.
+# The object has no plan and no device push: a refusal comes back as an NSO validation error (HTTP 400).
+# A route policy sets the tag as the color of the route; an ODN template with the same color steers the traffic. NSO takes one value at most.
+name: L3VPN Tag Sets
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/defined-sets/tag-sets/tag-set=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l3vpn-routing-policy:l3vpn-routing-policy/defined-sets/tag-sets
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L3VPN
+res_description: This resource can manage an L3VPN tag set.
+ds_description: This data source can read an L3VPN tag set.
+attributes:
+  - model_name: name
+    data_path: cisco-l3vpn-routing-policy:tag-set.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the tag set. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-tags
+  - model_name: tag-value
+    tf_name: tag_value
+    data_path: cisco-l3vpn-routing-policy:tag-set.0
+    type: Set
+    element_type: Int64
+    description: Tag value (the color), 1 to 4294967295. A tag set holds one value at most.
+    example: 4242

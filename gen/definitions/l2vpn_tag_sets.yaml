@@ -1,0 +1,38 @@
+---
+name: L2VPN Tag Sets
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/tag-sets/tag-set=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/tag-sets
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage an L2VPN tag set.
+ds_description: This data source can read an L2VPN tag set.
+attributes:
+  - model_name: name
+    data_path: cisco-l2vpn-routing-policy:tag-set.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the tag set. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-l2-tags
+  - model_name: tag-value
+    tf_name: tag_value
+    data_path: cisco-l2vpn-routing-policy:tag-set.0
+    type: Set
+    element_type: Int64
+    description: Tag value (the color), 1 to 4294967295. A tag set holds one value at most.
+    example: 4812
+  - model_name: co-flag
+    tf_name: co_flag
+    data_path: cisco-l2vpn-routing-policy:tag-set.0
+    type: String
+    enum_values: ["01", "10"]
+    description: Color-only flag of the extended community
+    example: "10"

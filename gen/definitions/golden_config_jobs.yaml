@@ -1,0 +1,116 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: golden_config_logic.go
+#   tests: resource_crosswork_golden_config_jobs_unit_test.go, golden_config_stub_test.go, golden_config_logic_test.go
+#   not modelled: the data source's own attributes (`device`, `template_id` and a `devices` list of `device_name`, `device_uuid`, `application_name`, `conformant`), because the resource has `devices` as a map under the same name
+#   why: one resource applies a template to many devices through several jobs, waits for each job and reads the result of each device, and removes the applications of the devices it leaves
+name: Golden Config Jobs
+rest_endpoint: /crosswork/cwms/gc/v1/applications/job
+res_description: This resource applies a Golden Configuration template to devices and keeps it applied.
+ds_description: This data source can read the devices a Golden Configuration template is applied to, with their conformance.
+no_resource: true
+no_data_source: true
+doc_category: Golden Config
+attributes:
+  - model_name: template_name
+    type: String
+    id: true
+    requires_replace: true
+    description: Name of the template to apply
+    example: cwtest-isis
+  - model_name: template_config_id
+    type: Int64
+    requires_replace: true
+    mandatory: true
+    description: Integer id of the configuration of the template (`config_id` of the template resource)
+    example: '1'
+  - model_name: vendor
+    type: String
+    mandatory: true
+    description: Vendor sent with the job
+    example: Cisco Systems
+  - model_name: product_series
+    type: String
+    mandatory: true
+    description: Product series sent with the job
+    example: Cisco XRv 9000 Series Virtual Routers
+  - model_name: mop
+    type: String
+    mandatory: true
+    description: Name of the MOP that applies the template
+    example: Default Golden Config - Cisco
+  - model_name: batch_size
+    type: Int64
+    min_int: 1
+    description: Number of devices the controller configures in parallel; the controller uses 1 when it is not set
+    example: 2
+  - model_name: error_budget
+    type: Int64
+    min_int: 0
+    description: Number of failures the controller tolerates before it stops a job; unset behaves like 1
+    example: 1
+  - model_name: tags
+    type: Set
+    element_type: String
+    description: Tags of the jobs
+    example: '["cwtest"]'
+  - model_name: deployment_timeout
+    type: Int64
+    default_value: 900
+    min_int: 10
+    max_int: 86400
+    description: Seconds to wait for each job to finish, counted from when the job starts; it only limits how long Terraform waits and is not part of the Crosswork configuration
+    example: 900
+  - model_name: trigger
+    type: String
+    description: A value, such as a hash of the template and its global variables, that triggers applying the template again to all devices when it changes.
+    example: 3f2a9c
+  - model_name: devices
+    type: Map
+    mandatory: true
+    description: The devices the template is applied to, by inventory id, each with its associated values; a device that leaves the map has the configuration removed
+    attributes:
+      - model_name: variables
+        type: List
+        description: Device level variables, which are preferred over the template and the global variables
+        attributes:
+          - model_name: name
+            type: String
+            mandatory: true
+            description: Variable name, 1 to 64 letters, digits and underscores, not starting with a digit
+            example: ntp_server
+          - model_name: type
+            type: String
+            enum_values: [STRING, JSON]
+            default_value: STRING
+            description: Type of the value
+            example: STRING
+          - model_name: value
+            type: String
+            description: Value of the variable; for the type `JSON` a JSON document
+            example: 10.2.2.2
+          - model_name: value_wo
+            type: String
+            write_only: true
+            write_only_tf: true
+            description: Value of the variable, which is never stored in the state
+            example: cisco-secret
+
+test_prerequisites: |
+  resource "crosswork_golden_config_global_variables" "test" {
+    name  = "cwtest_gc_desc"
+    value = "global-value"
+  }
+
+  resource "crosswork_golden_config_templates" "test" {
+    name           = "cwtest-gc-acc"
+    vendor         = "Cisco Systems"
+    software_type  = "IOS XR"
+    product_series = ["Cisco XRv 9000 Series Virtual Routers"]
+    tags           = ["cwtest"]
+    config         = "interface Loopback99\n description {{ cwtest_gc_desc }}\n"
+    depends_on     = [crosswork_golden_config_global_variables.test]
+  }

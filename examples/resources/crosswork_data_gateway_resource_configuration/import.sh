@@ -1,0 +1,1 @@
+terraform import crosswork_data_gateway_resource_configuration.example "data_gateway_resource_configuration"

@@ -1,0 +1,55 @@
+---
+name: Users
+rest_endpoint: /crosswork/aaa/v1/user
+id_from_attribute: true
+post_body: '{"{id}": {body}}'
+doc_category: Administration
+res_description: This resource can manage a user in the local authentication store.
+skip_minimum_test: true
+attributes:
+  - model_name: Username
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Username, 2 to 50 characters (letters, numbers and . - _ @)
+    example: cwtest-gen-user
+  - model_name: Password
+    type: String
+    mandatory: true
+    write_only: true
+    write_only_tf: true
+    description: Password, 8 to 72 characters with upper and lower case letters, a number and one of @!$%*?&
+    example: CwtestPass123!
+  - model_name: PolicyId
+    type: String
+    mandatory: true
+    description: Role of the user
+    example: admin
+  - model_name: FirstName
+    type: String
+    mandatory: true
+    description: First name
+    example: Test
+  - model_name: LastName
+    type: String
+    mandatory: true
+    description: Last name
+    example: User
+  - model_name: DeviceAccessGroups
+    type: List
+    mandatory: true
+    min_list: 1
+    description: List of device access groups of the user
+    attributes:
+      - model_name: Uuid
+        type: String
+        id: true
+        mandatory: true
+        description: Device access group UUID
+        example: b84e1a37-ef0d-4b79-984c-b162249d2e23
+      - model_name: DomainName
+        type: String
+        mandatory: true
+        description: Device access group name
+        example: ALL-ACCESS

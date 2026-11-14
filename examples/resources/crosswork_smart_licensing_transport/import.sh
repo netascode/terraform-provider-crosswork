@@ -1,0 +1,1 @@
+terraform import crosswork_smart_licensing_transport.example "smart_licensing_transport"

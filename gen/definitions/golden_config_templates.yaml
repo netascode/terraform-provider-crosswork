@@ -1,0 +1,118 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: golden_config_logic.go
+#   tests: resource_crosswork_golden_config_templates_unit_test.go, golden_config_stub_test.go
+#   why: the id is an integer that differs from the name, the read is a query followed by a get, the update is by that id, a delete answers HTTP 207, and the controller reorders the variables, tags and product series
+name: Golden Config Templates
+rest_endpoint: /crosswork/cwms/gc/v1/templates
+res_description: This resource can manage a template of Golden Configuration.
+ds_description: This data source can read a template of Golden Configuration.
+no_resource: true
+no_data_source: true
+doc_category: Golden Config
+attributes:
+  - model_name: name
+    type: String
+    id: true
+    requires_replace: true
+    description: Template name, 1 to 64 letters, digits, underscores and hyphens, starting with a letter
+    example: cwtest-isis
+  - model_name: config
+    type: String
+    mandatory: true
+    description: Configuration text with Jinja2 variables
+    example: 'isis {{ isis_password }}'
+  - model_name: vendor
+    type: String
+    mandatory: true
+    description: Vendor of the devices, as the inventory spells it
+    example: Cisco Systems
+  - model_name: software_type
+    type: String
+    mandatory: true
+    description: Software type of the devices
+    example: IOS XR
+  - model_name: product_series
+    type: Set
+    element_type: String
+    mandatory: true
+    description: Product series of the devices; the controller does not check them against a device
+    example: '["Cisco XRv 9000 Series Virtual Routers"]'
+  - model_name: description
+    type: String
+    description: Description, up to 255 characters
+    example: NTP servers
+  - model_name: tags
+    type: Set
+    element_type: String
+    description: Tags of the template, up to 64 characters each
+    example: '["core"]'
+  - model_name: mode
+    type: String
+    enum_values: [merge, replace]
+    default_value: merge
+    description: How the configuration is applied, merged into the device or replacing what it covers
+    example: merge
+  - model_name: config_type
+    type: String
+    enum_values: [native, xml, json, c-style, j-style]
+    default_value: native
+    description: Format of the configuration text
+    example: native
+  - model_name: audit
+    type: Bool
+    default_value: true
+    requires_replace: true
+    description: Include the template in the global conformance schedule
+    example: true
+  - model_name: force_delete
+    type: Bool
+    default_value: false
+    description: Delete the template with force, which also removes it from devices it is applied to; without it the controller refuses to delete an applied template
+    example: false
+  - model_name: template_id
+    type: Int64
+    computed: true
+    exclude_test: true
+    description: The integer id the controller gave the template
+    example: '1'
+  - model_name: config_id
+    type: Int64
+    computed: true
+    exclude_test: true
+    description: The integer id of the configuration of the template, which a job refers to
+    example: '1'
+  - model_name: variables
+    type: List
+    description: Variables of the template. Preferred over global variables
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        description: Variable name, 1 to 64 letters, digits and underscores, not starting with a digit
+        example: ntp_server
+      - model_name: type
+        type: String
+        enum_values: [STRING, JSON]
+        default_value: STRING
+        description: Type of the value
+        example: STRING
+      - model_name: value
+        type: String
+        description: Value of the variable; for the type `JSON` a JSON document
+        example: 10.1.1.2
+      - model_name: value_wo
+        type: String
+        write_only: true
+        write_only_tf: true
+        description: Value of the variable, which is never stored in the state
+        example: cisco-secret
+
+test_prerequisites: |
+  resource "crosswork_golden_config_global_variables" "test" {
+    name  = "cwtest_gc_desc"
+    value = "global-value"
+  }

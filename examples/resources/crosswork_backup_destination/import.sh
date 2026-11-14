@@ -1,0 +1,1 @@
+terraform import crosswork_backup_destination.example "backup_destination"

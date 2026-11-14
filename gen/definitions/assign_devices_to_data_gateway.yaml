@@ -1,0 +1,49 @@
+---
+# hand-written:
+#   resource: create, read, update, delete
+#   data source: - (no_data_source)
+#   model: -
+#   helpers: assign_devices_to_data_gateway_logic.go
+#   tests: assign_devices_to_data_gateway_logic_test.go, assign_devices_to_data_gateway_members_test.go
+#   why: a device joins a data gateway by an ADD, leaves by a REMOVE and moves by an UPDATE, none of them is repeatable, and the members are read from the list of devices
+name: Assign Devices To Data Gateway
+rest_endpoint: /crosswork/inventory/v1/dg/devicemapping
+no_data_source: true
+get_no_id: true
+id_from_attribute: true
+mutex: true
+# Needs a pool, which needs a free CDG instance, and existing devices, so there is no minimum test.
+skip_minimum_test: true
+test_tags: [CLUSTER]
+doc_category: Data Gateway
+res_description: This resource attaches devices to a data gateway.
+attributes:
+  - model_name: data_gateway_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Id of the data gateway, as `data_gateway_ids` of `crosswork_data_gateway_pools` lists it
+    example: 8551f8dc-91eb-43ee-ad4f-6e1993ca524c
+    test_value: crosswork_data_gateway_pools.assign_test.data_gateway_ids[0]
+  - model_name: devices
+    type: Set
+    element_type: String
+    mandatory: true
+    description: Inventory ids of the devices that are attached to the data gateway; an empty list detaches them all
+    example: build-router-1
+    test_value: '[data.crosswork_network_devices.assign_test.id]'
+
+test_prerequisites: |
+  data "crosswork_data_gateway_instances" "assign_test" {}
+
+  resource "crosswork_data_gateway_pools" "assign_test" {
+    name          = "cwtest-gen-assign-pool"
+    virtual_ips   = ["172.16.34.198"]
+    prefix_length = 24
+    instances = [[for instance in data.crosswork_data_gateway_instances.assign_test.items : instance.id if instance.name == sort([for i in data.crosswork_data_gateway_instances.assign_test.items : i.name])[0]][0]]
+  }
+
+  data "crosswork_network_devices" "assign_test" {
+    id = "build-router-1"
+  }

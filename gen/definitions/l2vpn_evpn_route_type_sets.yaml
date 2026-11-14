@@ -1,0 +1,31 @@
+---
+name: L2VPN EVPN Route Type Sets
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/evpn-route-type-sets/evpn-route-type-set=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-l2vpn-routing-policy:l2vpn-routing-policy/defined-sets/evpn-route-type-sets
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage an L2VPN EVPN route type set.
+ds_description: This data source can read an L2VPN EVPN route type set.
+attributes:
+  - model_name: name
+    data_path: cisco-l2vpn-routing-policy:evpn-route-type-set.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the EVPN route type set. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-l2-route-types
+  - model_name: evpn-route-type
+    tf_name: evpn_route_type
+    data_path: cisco-l2vpn-routing-policy:evpn-route-type-set.0
+    type: Set
+    element_type: Int64
+    description: EVPN route types of the set, 0 to 11
+    example: 1

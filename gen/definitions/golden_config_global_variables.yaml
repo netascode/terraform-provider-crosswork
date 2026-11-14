@@ -1,0 +1,44 @@
+---
+# hand-written:
+#   resource: whole file
+#   data source: whole file
+#   model: whole file
+#   helpers: golden_config_logic.go
+#   tests: resource_crosswork_golden_config_global_variables_unit_test.go, golden_config_stub_test.go
+#   why: the id is a string that differs from the name, the update is a PATCH by name that takes a list, a create or delete answers HTTP 207 with one entry per variable, and a JSON value is compared as JSON
+name: Golden Config Global Variables
+rest_endpoint: /crosswork/cwms/gc/v1/gvars
+res_description: This resource can manage a global variable of Golden Configuration.
+ds_description: This data source can read a global variable of Golden Configuration.
+no_resource: true
+no_data_source: true
+doc_category: Golden Config
+attributes:
+  - model_name: name
+    type: String
+    id: true
+    requires_replace: true
+    description: Variable name, 1 to 64 letters, digits and underscores, not starting with a digit
+    example: cwtest_isis_password
+  - model_name: type
+    type: String
+    description: Type of the value
+    enum_values: [STRING, JSON]
+    default_value: STRING
+    example: STRING
+  - model_name: value
+    type: String
+    description: Value of the variable; for the type `JSON` a JSON document
+    example: cisco
+  - model_name: value_wo
+    type: String
+    write_only: true
+    write_only_tf: true
+    description: Value of the variable
+    example: cisco-secret
+  - model_name: variable_id
+    type: String
+    computed: true
+    exclude_test: true
+    description: The id the controller gave the variable
+    example: 5c2f0a9e-0d2a-4f6e-9d1c-3b1a7e9a1f10

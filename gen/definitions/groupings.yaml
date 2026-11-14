@@ -1,0 +1,51 @@
+---
+# hand-written:
+#   resource: - (no_resource)
+#   data source: whole file
+#   model: -
+#   helpers: -
+#   tests: data_source_crosswork_groupings_test.go, data_source_crosswork_groupings_unit_test.go
+#   why: the groups of a classifier form a tree, and the response of the group call is nested; one call for each root (direct=false) returns the whole hierarchy, which the data source flattens into a list with the parent and path of each group
+name: Groupings
+rest_endpoint: /crosswork/grouping/v1/grouping/groups
+ds_description: This data source fetches all groups of a classifier, such as the device access groups
+get_no_id: true
+data_source_no_id: true
+no_resource: true
+no_data_source: true
+doc_category: Devices
+attributes:
+  - model_name: classifier
+    type: String
+    description: Group classifier
+    enum_values: [DeviceAccess, LocationDevices, UserDefinedDevices, TopologyTypeDevices, DeviceType, UserDefinedPorts, PortType]
+    example: DeviceAccess
+  - model_name: items
+    tf_name: items
+    type: Set
+    description: List of the groups of the classifier
+    attributes:
+      - model_name: id
+        type: String
+        description: Group id
+        example: b84e1a37-ef0d-4b79-984c-b162249d2e23
+      - model_name: name
+        type: String
+        description: Group name
+        example: ALL-ACCESS
+      - model_name: parentId
+        type: String
+        description: Id of the parent group, not set for a root group
+        example: 26d9c0b8-11ed-4310-8bfa-6a71c60db676
+      - model_name: path
+        type: String
+        description: Names of the group and its parents, separated by `/`, for example `Location/All Locations/AWS`
+        example: Location/All Locations/AWS
+      - model_name: discoveryType
+        type: String
+        description: How the group came to exist, for example `StaticSystem` for a built-in group, `Static` for a group created by a user and `Dynamic` for a group the system maintains
+        example: StaticSystem
+      - model_name: subgroupsAllowed
+        type: Bool
+        description: Whether subgroups can be created under the group
+        example: true

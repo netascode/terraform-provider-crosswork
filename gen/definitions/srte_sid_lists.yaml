@@ -1,0 +1,53 @@
+---
+name: SRTE SID Lists
+rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-policies:policies/sid-list=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/cisco-sr-te-cfp:sr-te/cisco-sr-te-cfp-sr-policies:policies
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+skip_minimum_test: true
+doc_category: Traffic Engineering
+res_description: This resource can manage an SR-TE SID list.
+ds_description: This data source can read an SR-TE SID list.
+attributes:
+  - model_name: name
+    data_path: cisco-sr-te-cfp-sr-policies:sid-list.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: SID list name. Letters, digits, `.`, `_` and `-`; a space or a slash is refused.
+    example: cwtest-sid-list
+  - model_name: sid
+    tf_name: sids
+    data_path: cisco-sr-te-cfp-sr-policies:sid-list.0
+    type: List
+    mandatory: true
+    description: Segments of the list in the order of the path. At least one.
+    attributes:
+      - model_name: index
+        type: Int64
+        id: true
+        mandatory: true
+        min_int: 1
+        max_int: 4294967295
+        description: Position of the segment in the list
+        example: 1
+      - model_name: label
+        data_path: mpls
+        type: Int64
+        min_int: 0
+        max_int: 1048575
+        description: MPLS label of the segment. Set the label or the address of an entry, not both.
+        example: 16001
+      - model_name: address
+        data_path: ipv4
+        type: String
+        exclude_test: true
+        description: IPv4 address of the segment. Set the label or the address of an entry, not both.
+        example: 192.0.2.10

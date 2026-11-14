@@ -1,0 +1,326 @@
+---
+name: L2VPN VPN Services
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/vpn-services/vpn-service=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/vpn-services
+plan_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/vpn-services/cisco-l2vpn-ntw:vpn-service-plan=%v
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+skip_minimum_test: true
+test_tags: [L2VPN]
+doc_category: L2VPN
+res_description: This resource can manage an L2VPN service.
+ds_description: This data source can read an L2VPN service.
+attributes:
+  - model_name: vpn-id
+    tf_name: vpn_id
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the service. Letters, digits, `_` and `-`, at most 32 characters.
+    example: cwtest-l2
+  - model_name: vpn-type
+    tf_name: vpn_type
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: String
+    enum_values: [ietf-vpn-common:vpws-evpn]
+    description: Type of the service
+    example: ietf-vpn-common:vpws-evpn
+  - model_name: cisco-l2vpn-ntw:evi-id
+    tf_name: evi_id
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Int64
+    min_int: 1
+    max_int: 65534
+    description: EVPN instance id. Use `auto_evi_id` for a number from the pool.
+    example: 3961
+  - model_name: cisco-l2vpn-ntw:auto-evi-id
+    tf_name: auto_evi_id
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Takes the EVPN instance id from the pool of the L2VPN id pools. Set to `true` or leave unset; not with `evi_id`.
+    example: true
+  - model_name: cisco-l2vpn-ntw:evi-source
+    tf_name: evi_source
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: EVPN VPWS source id
+    example: 1
+  - model_name: cisco-l2vpn-ntw:auto-evi-source
+    tf_name: auto_evi_source
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Takes the EVPN VPWS source id from the pool of the L2VPN id pools. Set to `true` or leave unset; not with `evi_source`.
+    example: true
+  - model_name: cisco-l2vpn-ntw:evi-target
+    tf_name: evi_target
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Int64
+    min_int: 1
+    max_int: 65535
+    description: EVPN VPWS target id
+    example: 2
+  - model_name: cisco-l2vpn-ntw:auto-evi-target
+    tf_name: auto_evi_target
+    data_path: ietf-l2vpn-ntw:vpn-service.0
+    type: Bool
+    type_yang_bool: empty
+    exclude_test: true
+    description: Takes the EVPN VPWS target id from the pool of the L2VPN id pools. Set to `true` or leave unset; not with `evi_target`.
+    example: true
+  - model_name: profile-name
+    tf_name: service_assurance_profile_name
+    data_path: ietf-l2vpn-ntw:vpn-service.0.cisco-l2vpn-ntw:service-assurance
+    type: String
+    description: Service assurance profile, which has to exist in Crosswork (the name of a system profile ends in a space and `system`)
+    example: Gold_L2VPN_ConfigProfile system
+  - model_name: rule-name
+    tf_name: service_assurance_rule_name
+    data_path: ietf-l2vpn-ntw:vpn-service.0.cisco-l2vpn-ntw:service-assurance
+    type: String
+    description: Service assurance rule, which has to exist in Crosswork
+    example: Rule-L2VPN-NM system
+  - model_name: monitoring-state
+    tf_name: service_assurance_monitoring_state
+    data_path: ietf-l2vpn-ntw:vpn-service.0.cisco-l2vpn-ntw:service-assurance
+    type: String
+    enum_values: [enable, disable, pause]
+    description: Monitoring state. `pause` can be set only while the state is `enable`.
+    example: enable
+  - model_name: preservation
+    tf_name: service_assurance_preservation
+    data_path: ietf-l2vpn-ntw:vpn-service.0.cisco-l2vpn-ntw:service-assurance
+    type: String
+    enum_values: [remove, preserve]
+    description: What happens to the monitoring data when the service is removed
+    example: remove
+  - model_name: vpn-node
+    tf_name: vpn_nodes
+    data_path: ietf-l2vpn-ntw:vpn-service.0.vpn-nodes
+    type: List
+    description: The nodes of the service. A service needs two nodes, and NSO refuses one with fewer. The example shows only one node.
+    attributes:
+      - model_name: vpn-node-id
+        tf_name: vpn_node_id
+        type: String
+        id: true
+        reference_nso_device: true
+        mandatory: true
+        description: Name of a device in the Crosswork inventory that is onboarded to NSO
+        example: build-router-1
+        test_value: data.crosswork_network_devices.vpn_test.id
+      - model_name: ethernet-segment-identifier
+        tf_name: multi_home_ethernet_segment_identifier
+        data_path: cisco-l2vpn-ntw:multi-home
+        type: String
+        description: Ethernet segment identifier of the access, nine bytes in hexadecimal separated by dots. The device gets it as an EVPN ethernet segment of the interface.
+        example: 00.11.22.33.44.55.66.77.88
+      - model_name: policy
+        tf_name: sr_policy
+        data_path: cisco-l2vpn-ntw:te-service-mapping.te-mapping.sr-policy
+        type: String
+        description: Name of an SR policy that carries the traffic.
+        example: cwtest-policy
+      - model_name: fallback
+        tf_name: sr_policy_fallback
+        data_path: cisco-l2vpn-ntw:te-service-mapping.te-mapping.sr-policy
+        type: String
+        enum_values: [disable]
+        description: What the pseudowire does when the policy is down
+        example: disable
+      - model_name: route-policy
+        tf_name: odn_route_policies
+        data_path: cisco-l2vpn-ntw:te-service-mapping.te-mapping.odn
+        type: Set
+        element_type: String
+        exclude_test: true
+        description: L2VPN route policies of the on-demand mapping.
+        example: cwtest-l2-policy
+      - model_name: vpn-network-access
+        tf_name: vpn_network_accesses
+        data_path: vpn-network-accesses
+        type: List
+        description: Accesses of the node.
+        attributes:
+          - model_name: id
+            type: String
+            id: true
+            mandatory: true
+            description: Identifier of the access
+            example: "1"
+          - model_name: description
+            type: String
+            description: Description of the access
+            example: cwtest access
+          - model_name: interface-id
+            tf_name: interface_id
+            type: String
+            mandatory: true
+            description: Interface of the access. A dot1q access becomes a sub-interface.
+            example: GigabitEthernet0/0/0/9
+          - model_name: encap-type
+            tf_name: encapsulation_type
+            data_path: connection.encapsulation
+            type: String
+            enum_values: [ietf-vpn-common:dot1q, ietf-vpn-common:untagged-int]
+            mandatory: true
+            description: Encapsulation type, the same on both nodes
+            example: ietf-vpn-common:dot1q
+          - model_name: cvlan-id
+            tf_name: cvlan_id
+            data_path: connection.encapsulation.dot1q
+            type: Int64
+            min_int: 1
+            max_int: 4094
+            description: VLAN of the dot1q sub-interface
+            example: 3961
+          - model_name: pop
+            tf_name: tag_operation_pop
+            data_path: connection.encapsulation.dot1q.tag-operations
+            type: String
+            enum_values: ["1", "2"]
+            exclude_test: true
+            description: Number of tags that the access removes. Only one of pop, push and translate.
+            example: "1"
+          - model_name: push
+            tf_name: tag_operation_push
+            data_path: connection.encapsulation.dot1q.tag-operations
+            type: Bool
+            type_yang_bool: empty
+            exclude_test: true
+            description: The access pushes the tag of `tag_operation_tag`. Set to `true` or leave unset.
+            example: true
+          - model_name: translate
+            tf_name: tag_operation_translate
+            data_path: connection.encapsulation.dot1q.tag-operations
+            type: String
+            enum_values: ["1-to-1"]
+            exclude_test: true
+            description: The access translates the tag into the tag of `tag_operation_tag`
+            example: 1-to-1
+          - model_name: tag-1
+            tf_name: tag_operation_tag
+            data_path: connection.encapsulation.dot1q.tag-operations
+            type: Int64
+            min_int: 1
+            max_int: 4094
+            exclude_test: true
+            description: Tag that push or translate uses
+            example: 200
+          - model_name: mtu
+            data_path: service
+            type: Int64
+            min_int: 64
+            max_int: 65535
+            description: MTU of the access.
+            example: 1500
+          - model_name: qos-profile
+            tf_name: qos_profiles
+            data_path: service.qos.qos-profile
+            type: List
+            exclude_test: true
+            description: QoS profiles of the access
+            attributes:
+              - model_name: profile
+                type: String
+                id: true
+                mandatory: true
+                description: Name of a QoS profile id; the device needs a policy-map of that name
+                example: GOLD-IN
+              - model_name: direction
+                type: String
+                enum_values: [ietf-vpn-common:both, ietf-vpn-common:site-to-wan, ietf-vpn-common:wan-to-site]
+                description: wan-to-site is the input and site-to-wan the output of the interface
+                example: ietf-vpn-common:wan-to-site
+          - model_name: md-name
+            tf_name: oam_md_name
+            data_path: ethernet-service-oam
+            type: String
+            description: Maintenance domain name of the Ethernet OAM. Needs the other OAM attributes, on both nodes.
+            example: EVC3961
+          - model_name: md-level
+            tf_name: oam_md_level
+            data_path: ethernet-service-oam
+            type: Int64
+            min_int: 0
+            max_int: 7
+            description: Maintenance domain level
+            example: 4
+          - model_name: maid
+            tf_name: oam_maid
+            data_path: ethernet-service-oam.y-1731.0
+            type: String
+            description: Maintenance association id, equal on both nodes
+            example: "3961"
+          - model_name: mep-id
+            tf_name: oam_mep_id
+            data_path: ethernet-service-oam.y-1731.0
+            type: Int64
+            min_int: 1
+            max_int: 8191
+            description: Maintenance end point id
+            example: 1
+          - model_name: message-period
+            tf_name: oam_message_period
+            data_path: ethernet-service-oam.y-1731.0
+            type: String
+            enum_values: [100ms, 1s, 10s]
+            description: Period of the continuity check messages.
+            example: 1s
+          - model_name: cisco-l2vpn-ntw:id-type
+            tf_name: oam_id_type
+            data_path: ethernet-service-oam.y-1731.0
+            type: String
+            enum_values: [number, icc-based]
+            description: Kind of the maintenance association id
+            example: number
+          - model_name: cisco-l2vpn-ntw:y-1731-profile
+            tf_name: oam_y1731_profiles
+            data_path: ethernet-service-oam.y-1731.0
+            type: List
+            description: Y.1731 profiles of the access, at most one delay and one loss profile
+            attributes:
+              - model_name: name
+                type: String
+                id: true
+                mandatory: true
+                description: Name of a Y.1731 profile
+                example: cwtest-y1731
+                test_value: crosswork_l2vpn_y1731_profiles.vpn_test.name
+              - model_name: interval
+                tf_name: schedule_interval
+                data_path: schedule
+                type: Int64
+                min_int: 1
+                max_int: 90
+                description: Minutes between the operations; replaces the interval of the profile
+                example: 5
+              - model_name: duration
+                tf_name: schedule_duration
+                data_path: schedule
+                type: String
+                description: Minutes that the operations last, 1 to 1440, or `forever`; replaces the duration of the profile
+                example: "5"
+
+test_prerequisites: |
+  data "crosswork_network_devices" "vpn_test" {
+    id = "build-router-1"
+  }
+
+  resource "crosswork_l2vpn_y1731_profiles" "vpn_test" {
+    name = "cwtest-y1731"
+    type = "delay"
+  }

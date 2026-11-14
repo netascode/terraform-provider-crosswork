@@ -1,0 +1,42 @@
+---
+name: File Servers
+rest_endpoint: /crosswork/platform/v2/xftp/server_update
+get_rest_endpoint: /crosswork/platform/v2/xftp/server_status
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"tftpEnable":false,"ftpEnable":false,"sftpUploadEnable":false}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"file_servers\"'
+# The servers belong to the whole cluster, so the acceptance test changes them and the destroy switches them off.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the file servers of the cluster.
+ds_description: This data source can read the file servers of the cluster.
+attributes:
+  - model_name: ftpEnable
+    response_data_path: ftpEnabled
+    tf_name: ftp_enabled
+    type: Bool
+    default_value: false
+    description: Enable the FTP server
+    example: true
+  - model_name: sftpUploadEnable
+    response_data_path: sftpUploadEnabled
+    tf_name: sftp_upload_enabled
+    type: Bool
+    default_value: false
+    description: Enable the SFTP server upload
+    example: true
+  - model_name: tftpEnable
+    response_data_path: tftpEnabled
+    tf_name: tftp_enabled
+    type: Bool
+    default_value: false
+    description: Enable the TFTP server
+    example: false

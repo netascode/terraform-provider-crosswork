@@ -1,0 +1,1 @@
+terraform import crosswork_data_retention_network_performance.example "data_retention_network_performance"

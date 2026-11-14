@@ -1,0 +1,78 @@
+---
+# hand-written:
+#   resource: read, create, update, delete
+#   data source: read
+#   model: readGet, toBody, fromBody, updateFromBody
+#   helpers: settings_logic.go
+#   tests: data_retention_network_performance_test.go (offline tests of the bodies and the read)
+#   why: the setting is two calls (the collection settings and the retention periods), the settings are strings "0" and "1", Link PM also sets the interface flag, and a destroy writes the defaults of both calls
+name: Data Retention Network Performance
+rest_endpoint: /crosswork/optima-analytics/api/v1/config/settings
+get_rest_endpoint: /crosswork/optima-analytics/api/v1/config/settings
+get_no_id: true
+put_create: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"data_retention_network_performance\"'
+# The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the network performance data retention.
+ds_description: This data source can read the network performance data retention.
+attributes:
+  - model_name: collect_lsp_state_change
+    type: Bool
+    default_value: true
+    description: Collect the LSP state change events
+    example: false
+  - model_name: collect_lsp_path_change
+    type: Bool
+    default_value: true
+    description: Collect the LSP path change events
+    example: false
+  - model_name: collect_lsp_utilization
+    type: Bool
+    default_value: true
+    description: Collect the LSP utilization metrics
+    example: false
+  - model_name: collect_lsp_pm
+    type: Bool
+    default_value: false
+    description: Collect the LSP PM metrics
+    example: true
+  - model_name: collect_link_pm
+    type: Bool
+    default_value: false
+    description: Collect the link PM metrics
+    example: true
+  - model_name: raw_hours
+    type: Int64
+    min_int: 1
+    max_int: 24
+    default_value: 24
+    description: Hours that raw data is kept
+    example: 12
+  - model_name: hourly_days
+    type: Int64
+    min_int: 1
+    max_int: 7
+    default_value: 7
+    description: Days that hourly data is kept
+    example: 5
+  - model_name: daily_days
+    type: Int64
+    min_int: 1
+    max_int: 31
+    default_value: 31
+    description: Days that daily data is kept
+    example: 20
+  - model_name: weekly_weeks
+    type: Int64
+    min_int: 1
+    max_int: 52
+    default_value: 52
+    description: Weeks that weekly data is kept. Each period must not be longer than the next
+    example: 30

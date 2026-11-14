@@ -1,0 +1,51 @@
+---
+# a create on a pool that exists fails (HTTP 409) unless the provider setting allow_existing_on_create is on, which then updates the
+# range of the pool to the configured one (a PUT of the range, which keeps the allocations); otherwise import the pool.
+# The update is a PUT of the range only, not of the whole pool.
+name: Resource Pools
+allow_existing_on_create: true
+rest_endpoint: /crosswork/proxy/nso/restconf/data/resource-allocator:resource-pools/id-allocator:id-pool=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/resource-allocator:resource-pools
+put_rest_endpoint: /crosswork/proxy/nso/restconf/data/resource-allocator:resource-pools/id-allocator:id-pool=%v/range
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: Resource Pools
+res_description: This resource can manage an ID pool of the NSO resource allocator.
+ds_description: This data source can read an ID pool of the NSO resource allocator.
+attributes:
+  - model_name: name
+    data_path: id-allocator:id-pool.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    exclude_from_put: true
+    mandatory: true
+    string_patterns: ['^[A-Za-z0-9_.-]+$']
+    description: Pool name, made of letters, digits, underscores, hyphens and dots. A service refers to the pool by this name.
+    example: cwtest-pool
+  - model_name: start
+    tf_name: range_start
+    data_path: id-allocator:id-pool.0.range
+    put_data_path: id-allocator:range
+    type: Int64
+    mandatory: true
+    min_int: 0
+    max_int: 4294967295
+    description: First id of the pool
+    example: 1
+  - model_name: end
+    tf_name: range_end
+    data_path: id-allocator:id-pool.0.range
+    put_data_path: id-allocator:range
+    type: Int64
+    mandatory: true
+    min_int: 0
+    max_int: 4294967295
+    description: Last id of the pool, not below the first
+    example: 100

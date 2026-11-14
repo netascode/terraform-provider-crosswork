@@ -1,0 +1,133 @@
+---
+name: L2VPN Y1731 Profiles
+rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw/cisco-l2vpn-ntw:y-1731-profile=%v
+post_rest_endpoint: /crosswork/proxy/nso/restconf/data/ietf-l2vpn-ntw:l2vpn-ntw
+get_extra_query_params: "?content=config"
+get_no_id: true
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+doc_category: L2VPN
+res_description: This resource can manage a Y.1731 profile of the L2VPN.
+ds_description: This data source can read a Y.1731 profile of the L2VPN.
+attributes:
+  - model_name: name
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    requires_replace: true
+    mandatory: true
+    description: Name of the profile. Any ASCII character except `%`, `?` and `#`.
+    example: cwtest-y1731
+  - model_name: type
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0
+    type: String
+    enum_values: [delay, loss, synthetic-loss]
+    mandatory: true
+    description: Kind of measurement. `delay_statistics` belong to `delay`, `loss_statistics` to `loss` and `synthetic-loss`.
+    example: delay
+  - model_name: interval
+    tf_name: schedule_interval
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.schedule
+    type: Int64
+    min_int: 1
+    max_int: 90
+    description: Minutes between the operations. It has to be a factor of 1440 (1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 30, 32, 36, 40, 45, 48, 60, 80 or 90).
+    example: 5
+  - model_name: duration
+    tf_name: schedule_duration
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.schedule
+    type: String
+    description: Minutes that the operations last, 1 to 1440, or `forever`
+    example: "5"
+  - model_name: type
+    tf_name: probe_type
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe
+    type: String
+    enum_values: [burst, packet]
+    description: Kind of probe, `burst` when left out. With `packet` NSO drops the message count and the message period without an error.
+    example: burst
+  - model_name: message-count
+    tf_name: probe_message_count
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe.burst
+    type: Int64
+    min_int: 2
+    max_int: 1200
+    description: Messages of a burst. Message count times message period divided by 1000 must not exceed the measurement interval.
+    example: 10
+  - model_name: message-period
+    tf_name: probe_message_period
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe.burst
+    type: Int64
+    min_int: 50
+    max_int: 30000
+    description: Milliseconds between the messages of a burst
+    example: 100
+  - model_name: measurement-interval
+    tf_name: probe_measurement_interval
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe
+    type: String
+    description: Seconds of a measurement, 1 to 3600, or `once` (only with the probe type `packet`)
+    example: "60"
+  - model_name: frame-size
+    tf_name: probe_frame_size
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe
+    type: Int64
+    min_int: 1
+    max_int: 9000
+    description: Size of the frame in bytes.
+    example: 1000
+  - model_name: priority
+    tf_name: probe_priority
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.probe
+    type: Int64
+    min_int: 0
+    max_int: 7
+    description: Priority of the frames
+    example: 5
+  - model_name: statistic
+    tf_name: delay_statistics
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.delay-params
+    type: Set
+    description: Delay statistics, only for the type `delay`
+    attributes:
+      - model_name: type
+        type: String
+        id: true
+        mandatory: true
+        enum_values: [delay-ds, delay-sd, delay-two-way, jitter-ds, jitter-sd, jitter-two-way]
+        description: Statistic
+        example: delay-two-way
+  - model_name: statistic
+    tf_name: loss_statistics
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.loss-params
+    type: Set
+    exclude_test: true
+    description: Loss statistics, for the types `loss` and `synthetic-loss`
+    attributes:
+      - model_name: type
+        type: String
+        id: true
+        mandatory: true
+        enum_values: [loss-ds, loss-sd]
+        description: Statistic
+        example: loss-sd
+  - model_name: bucket-size
+    tf_name: bucket_size
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.bucket-details
+    type: Int64
+    min_int: 1
+    max_int: 100
+    description: Number of measurements in a bucket
+    example: 1
+  - model_name: bucket-archive
+    tf_name: bucket_archive
+    data_path: cisco-l2vpn-ntw:y-1731-profile.0.bucket-details
+    type: Int64
+    min_int: 1
+    max_int: 100
+    description: Number of buckets kept
+    example: 20

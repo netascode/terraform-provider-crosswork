@@ -1,0 +1,73 @@
+---
+# hand-written:
+#   resource: create, read, update (the manually managed sections); delete leaves the settings as they are
+#   data source: read (the helpers shape the answer of the controller)
+#   model: toBody, fromBody, updateFromBody
+#   helpers: data_gateway_settings_logic.go
+#   tests: data_gateway_settings_logic_test.go
+#   why: the values travel as a list of key and typed value inside a command wrapper, only the values the configuration sets are sent, and the others are read from the controller
+name: Data Gateway Global Parameters
+rest_endpoint: /crosswork/dg-manager/v1/command/global-parameter
+get_rest_endpoint: /crosswork/dg-manager/v1/command/global-parameter/query
+get_body: '{}'
+get_no_id: true
+put_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+no_delete: true
+mutex: true
+id_path: '!\"data_gateway_global_parameters\"'
+# The values are shared by every Data Gateway of the cluster, so the acceptance test changes one value and puts it back.
+skip_minimum_test: true
+test_tags: [CLUSTER]
+doc_category: Data Gateway
+res_description: This resource can manage the global parameters of the Crosswork Data Gateways.
+ds_description: This data source can read the global parameters of the Crosswork Data Gateways, the settings of the Data Collector(s) Global Settings page.
+attributes:
+  - model_name: cli_sessions
+    type: Int64
+    computed: true
+    min_int: 1
+    max_int: 50
+    description: Number of CLI sessions
+    example: 3
+  - model_name: ssh_session_timeout
+    type: Int64
+    computed: true
+    min_int: 5
+    max_int: 900
+    description: SSH session timeout in seconds
+    example: 120
+  - model_name: snmp_trap_port
+    type: Int64
+    computed: true
+    min_int: 1
+    max_int: 65535
+    description: SNMP trap port
+    example: 1062
+  - model_name: syslog_udp_port
+    type: Int64
+    computed: true
+    min_int: 1
+    max_int: 65535
+    description: Syslog UDP port
+    example: 9514
+  - model_name: syslog_tcp_port
+    type: Int64
+    computed: true
+    min_int: 1
+    max_int: 65535
+    description: Syslog TCP port
+    example: 9898
+  - model_name: syslog_tls_port
+    type: Int64
+    computed: true
+    min_int: 1
+    max_int: 65535
+    description: Syslog TLS port
+    example: 6514
+  - model_name: resync_snmpv3_details
+    type: Bool
+    computed: true
+    description: Whether the SNMPv3 details of a device are synchronised again
+    example: false

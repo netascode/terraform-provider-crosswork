@@ -1,0 +1,66 @@
+---
+name: TE General Settings
+rest_endpoint: /crosswork/optima/api/v1/setTimeouts
+get_rest_endpoint: /crosswork/optima/api/v1/getTimeouts
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"OPTIMA_POLICY_UNUSED_THRESHOLD":"1000","PCE_DISPATCH_NON_BWOD_TIMEOUT":"60","PCE_DISPATCH_BWOD_TIMEOUT":"90","OPTIMA_ENG_IGP_PATH_TIMEOUT":"180","OPTIMA_ENG_UTILIZATION_TIMEOUT":"180"}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"te_general_settings\"'
+# The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Settings
+res_description: This resource can manage the general settings of traffic engineering.
+ds_description: This data source can read the general settings of traffic engineering.
+attributes:
+  - model_name: OPTIMA_POLICY_UNUSED_THRESHOLD
+    tf_name: policy_unused_threshold
+    type: Int64
+    model_type_string: true
+    min_int: 0
+    max_int: 5000
+    default_value: 1000
+    description: Policy unused threshold in kbps
+    example: 2000
+  - model_name: PCE_DISPATCH_NON_BWOD_TIMEOUT
+    tf_name: policy_provisioning_timeout
+    type: Int64
+    model_type_string: true
+    min_int: 60
+    max_int: 900
+    default_value: 60
+    description: Policy and tunnel provisioning timeout in seconds
+    example: 120
+  - model_name: PCE_DISPATCH_BWOD_TIMEOUT
+    tf_name: bandwidth_on_demand_provisioning_timeout
+    type: Int64
+    model_type_string: true
+    min_int: 60
+    max_int: 900
+    default_value: 90
+    description: Bandwidth on demand policy provisioning timeout in seconds
+    example: 100
+  - model_name: OPTIMA_ENG_IGP_PATH_TIMEOUT
+    tf_name: igp_path_request_timeout
+    type: Int64
+    model_type_string: true
+    min_int: 60
+    max_int: 900
+    default_value: 180
+    description: IGP path request timeout in seconds
+    example: 200
+  - model_name: OPTIMA_ENG_UTILIZATION_TIMEOUT
+    tf_name: policy_details_request_timeout
+    type: Int64
+    model_type_string: true
+    min_int: 60
+    max_int: 900
+    default_value: 180
+    description: Policy and tunnel details request timeout in seconds
+    example: 220
