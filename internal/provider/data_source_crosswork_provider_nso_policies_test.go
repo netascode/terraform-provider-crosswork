@@ -27,27 +27,27 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
-func TestAccDataSourceCwNSOProviderPolicies(t *testing.T) {
+func TestAccDataSourceCwProviderNSOPolicies(t *testing.T) {
 	var checks []resource.TestCheckFunc
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "provider_name", "nso"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "match", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "match_rule", "*"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "onboard_to_nso", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "onboard_to_nso_rule", "*"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "onboard_from_nso", "false"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "onboard_from_nso_rule", "*"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "sync_from_nso", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "sync_from_nso_rule", "*"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "check_sync", "true"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "check_sync_rule", "*"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "neds.0.ned", "cisco-iosxr-cli-7.76"))
-	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_nso_provider_policies.test", "neds.0.rule", "product_info.software_type = 'IOS XR*'"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "provider_name", "nso"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "match", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "match_rule", "*"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "onboard_to_nso", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "onboard_to_nso_rule", "*"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "onboard_from_nso", "false"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "onboard_from_nso_rule", "*"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "sync_from_nso", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "sync_from_nso_rule", "*"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "check_sync", "true"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "check_sync_rule", "*"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "neds.0.ned", "cisco-iosxr-cli-7.76"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_provider_nso_policies.test", "neds.0.rule", "product_info.software_type = 'IOS XR*'"))
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDataSourceCwNSOProviderPoliciesConfig(),
+				Config: testAccDataSourceCwProviderNSOPoliciesConfig(),
 				Check:  resource.ComposeTestCheckFunc(checks...),
 			},
 		},
@@ -60,8 +60,8 @@ func TestAccDataSourceCwNSOProviderPolicies(t *testing.T) {
 // End of section. //template:end testPrerequisites
 
 // Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
-func testAccDataSourceCwNSOProviderPoliciesConfig() string {
-	config := `resource "crosswork_nso_provider_policies" "test" {` + "\n"
+func testAccDataSourceCwProviderNSOPoliciesConfig() string {
+	config := `resource "crosswork_provider_nso_policies" "test" {` + "\n"
 	config += `	provider_name = "nso"` + "\n"
 	config += `	match = true` + "\n"
 	config += `	match_rule = "*"` + "\n"
@@ -80,8 +80,8 @@ func testAccDataSourceCwNSOProviderPoliciesConfig() string {
 	config += `}` + "\n"
 
 	config += `
-		data "crosswork_nso_provider_policies" "test" {
-			id = crosswork_nso_provider_policies.test.id
+		data "crosswork_provider_nso_policies" "test" {
+			id = crosswork_provider_nso_policies.test.id
 			provider_name = "nso"
 		}
 	`

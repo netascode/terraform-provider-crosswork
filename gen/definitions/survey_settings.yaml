@@ -16,7 +16,7 @@ id_path: '!\"survey_settings\"'
 # The flag belongs to the whole cluster, so the acceptance test changes it and the destroy sets it back to enabled.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the customer satisfaction survey setting of the cluster.
 ds_description: This data source can read the customer satisfaction survey setting of the cluster.
 attributes:

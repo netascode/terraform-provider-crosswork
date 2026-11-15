@@ -19,7 +19,7 @@ id_path: '!\"health_settings\"'
 # The thresholds belong to the whole cluster, so the acceptance test changes one row and the destroy resets all rows.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the health settings of the performance monitoring dashboards.
 ds_description: This data source can read the health settings of the performance monitoring dashboards.
 attributes:

@@ -20,7 +20,7 @@ id_path: '!\"data_gateway_global_parameters\"'
 # The values are shared by every Data Gateway of the cluster, so the acceptance test changes one value and puts it back.
 skip_minimum_test: true
 test_tags: [CLUSTER]
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage the global parameters of the Crosswork Data Gateways.
 ds_description: This data source can read the global parameters of the Crosswork Data Gateways, the settings of the Data Collector(s) Global Settings page.
 attributes:

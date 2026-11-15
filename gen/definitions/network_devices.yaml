@@ -21,7 +21,7 @@ delete_body: '{"data":[{"inventory_id":"{id}"}]}'
 get_before_delete: true
 # A device with no SNMP row needs a host name and a software type: no minimum test.
 skip_minimum_test: true
-doc_category: Devices
+doc_category: Device Management
 res_description: This resource can manage a network device in inventory.
 attributes:
   - model_name: inventory_id

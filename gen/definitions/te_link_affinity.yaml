@@ -14,7 +14,7 @@ mutex: true
 # The affinities belong to the whole cluster, so the acceptance test creates one affinity and the destroy removes it.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage one link affinity for traffic engineering.
 ds_description: This data source can read one link affinity for traffic engineering.
 attributes:

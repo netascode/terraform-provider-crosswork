@@ -13,7 +13,7 @@ get_no_id: true
 data_source_no_id: true
 no_resource: true
 no_data_source: true
-doc_category: Devices
+doc_category: Device Management
 attributes:
   - model_name: classifier
     type: String

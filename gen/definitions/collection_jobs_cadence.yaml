@@ -20,7 +20,7 @@ no_data_source: true
 id_path: '!\"collection_jobs_cadence\"'
 # The setting is shared by every user of the cluster, so the acceptance test changes it and puts the original values back.
 skip_minimum_test: true
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage the cadence of the Crosswork collection jobs.
 ds_description: This data source can read the cadence of the Crosswork collection jobs that Device Lifecycle Management runs itself, the settings of the Collection Jobs Cadence (DLM) panel of the Collection Jobs page.
 attributes:

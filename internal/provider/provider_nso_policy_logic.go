@@ -37,31 +37,31 @@ import (
 // and sends everything else back as it was.
 
 const (
-	nsoPolicyQueryPath = "/crosswork/inventory/v1/nso/policy/query"
-	nsoPolicyPath      = "/crosswork/inventory/v1/nso/policy"
-	nsoJobsQueryPath   = "/crosswork/inventory/v1/jobs/query"
+	providerNSOPolicyQueryPath = "/crosswork/inventory/v1/nso/policy/query"
+	providerNSOPolicyPath      = "/crosswork/inventory/v1/nso/policy"
+	nsoJobsQueryPath           = "/crosswork/inventory/v1/jobs/query"
 )
 
-// nsoPolicyFlags are the flags of an entry. The controller stores a false flag but reads it back as missing.
-var nsoPolicyFlags = []string{"match", "onboardTo", "onboardFrom", "syncFrom", "checkSync"}
+// providerNSOPolicyFlags are the flags of an entry. The controller stores a false flag but reads it back as missing.
+var providerNSOPolicyFlags = []string{"match", "onboardTo", "onboardFrom", "syncFrom", "checkSync"}
 
 // A variable so that tests can shorten it.
-var nsoPolicyJobTimeout = 60 * time.Second
+var providerNSOPolicyJobTimeout = 60 * time.Second
 
-func nsoPolicyEntry(doc gjson.Result, name string) (gjson.Result, bool) {
+func providerNSOPolicyEntry(doc gjson.Result, name string) (gjson.Result, bool) {
 	entry, ok := doc.Get("provider_policy").Map()[name]
 	return entry, ok && entry.IsObject()
 }
 
 // The error is a not found when the document has no entry for the provider, which is how the controller reports a
 // provider that was removed (the policy goes with it).
-func flattenNSOPolicyEntry(doc gjson.Result, name string) (gjson.Result, error) {
-	entry, ok := nsoPolicyEntry(doc, name)
+func flattenProviderNSOPolicyEntry(doc gjson.Result, name string) (gjson.Result, error) {
+	entry, ok := providerNSOPolicyEntry(doc, name)
 	if !ok {
 		return gjson.Result{}, fmt.Errorf("StatusCode 404: the policy has no entry for the NSO provider %q", name)
 	}
 	body := entry.Raw
-	for _, flag := range nsoPolicyFlags {
+	for _, flag := range providerNSOPolicyFlags {
 		if !entry.Get(flag).Exists() {
 			body, _ = sjson.Set(body, flag, false)
 		}
@@ -70,7 +70,7 @@ func flattenNSOPolicyEntry(doc gjson.Result, name string) (gjson.Result, error) 
 	return gjson.Parse(body), nil
 }
 
-func nsoPolicyDocumentWith(doc gjson.Result, name, entry string) (string, error) {
+func providerNSOPolicyDocumentWith(doc gjson.Result, name, entry string) (string, error) {
 	var root map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(doc.Raw), &root); err != nil || root == nil {
 		return "", fmt.Errorf("the policy of the controller is not a JSON object: %s", doc.Raw)
@@ -94,7 +94,7 @@ func nsoPolicyDocumentWith(doc gjson.Result, name, entry string) (string, error)
 	return string(out), err
 }
 
-func nsoPolicyJobFailure(job gjson.Result) string {
+func providerNSOPolicyJobFailure(job gjson.Result) string {
 	if job.Get("state").String() != "JOB_FAILED" {
 		return ""
 	}
@@ -109,8 +109,8 @@ func nsoPolicyJobFailure(job gjson.Result) string {
 }
 
 // A PUT of the policy is normally finished when it answers (state JOB_COMPLETED), so this is only a fallback.
-func waitNSOPolicyJob(ctx context.Context, c *cw.Client, jobId string) error {
-	deadline := time.Now().Add(nsoPolicyJobTimeout)
+func waitProviderNSOPolicyJob(ctx context.Context, c *cw.Client, jobId string) error {
+	deadline := time.Now().Add(providerNSOPolicyJobTimeout)
 	body, _ := sjson.Set("{}", "filter.job_id", jobId)
 	for {
 		res, err := c.Post(nsoJobsQueryPath, body, cw.ReadOnly)
@@ -119,7 +119,7 @@ func waitNSOPolicyJob(ctx context.Context, c *cw.Client, jobId string) error {
 			if !job.Exists() {
 				job = res.Get("jobs.0")
 			}
-			if failure := nsoPolicyJobFailure(job); failure != "" {
+			if failure := providerNSOPolicyJobFailure(job); failure != "" {
 				return fmt.Errorf("the controller did not apply the policy: %s", failure)
 			}
 			if job.Get("state").String() == "JOB_COMPLETED" {
@@ -132,34 +132,34 @@ func waitNSOPolicyJob(ctx context.Context, c *cw.Client, jobId string) error {
 	}
 }
 
-func applyNSOProviderPolicy(ctx context.Context, c *cw.Client, plan *NSOProviderPolicies) error {
+func applyProviderNSOPolicy(ctx context.Context, c *cw.Client, plan *ProviderNSOPolicies) error {
 	name := plan.ProviderName.ValueString()
-	doc, err := c.Post(nsoPolicyQueryPath, `{}`, cw.ReadOnly)
+	doc, err := c.Post(providerNSOPolicyQueryPath, `{}`, cw.ReadOnly)
 	if err != nil {
 		return fmt.Errorf("%s, %s", err, doc.String())
 	}
-	if _, ok := nsoPolicyEntry(doc, name); !ok {
+	if _, ok := providerNSOPolicyEntry(doc, name); !ok {
 		return fmt.Errorf("the controller has no policy for the NSO provider %q: the controller creates it with the provider, so create the provider first", name)
 	}
-	body, err := nsoPolicyDocumentWith(doc, name, plan.toBody(ctx, NSOProviderPolicies{}))
+	body, err := providerNSOPolicyDocumentWith(doc, name, plan.toBody(ctx, ProviderNSOPolicies{}))
 	if err != nil {
 		return err
 	}
-	res, err := c.Put(nsoPolicyPath, body, cw.UseMutex)
+	res, err := c.Put(providerNSOPolicyPath, body, cw.UseMutex)
 	if err != nil {
 		return fmt.Errorf("%s, %s", err, res.String())
 	}
 	// The controller answers 200 for a refusal and names it in the state of the job; nothing is applied then.
-	if failure := nsoPolicyJobFailure(res); failure != "" {
+	if failure := providerNSOPolicyJobFailure(res); failure != "" {
 		return fmt.Errorf("the controller refused the policy: %s", failure)
 	}
 	if state := res.Get("state").String(); state != "JOB_COMPLETED" && res.Get("job_id").Exists() {
-		tflog.Debug(ctx, fmt.Sprintf("nso_provider_policies: job %s is %q, waiting for it", res.Get("job_id").String(), state))
-		if err := waitNSOPolicyJob(ctx, c, res.Get("job_id").String()); err != nil {
+		tflog.Debug(ctx, fmt.Sprintf("provider_nso_policies: job %s is %q, waiting for it", res.Get("job_id").String(), state))
+		if err := waitProviderNSOPolicyJob(ctx, c, res.Get("job_id").String()); err != nil {
 			return err
 		}
 	}
-	read, err := plan.readGet(c, nsoPolicyQueryPath)
+	read, err := plan.readGet(c, providerNSOPolicyQueryPath)
 	if err != nil {
 		return err
 	}

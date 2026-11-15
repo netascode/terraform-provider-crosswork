@@ -17,7 +17,7 @@ no_data_source: true
 mutex: true
 # The acceptance test needs a cluster with Crosswork Data Gateway, and the destination of the test is never used by a collection job.
 skip_minimum_test: true
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage a data destination of the Crosswork Data Gateways.
 ds_description: This data source can read a data destination of the Crosswork Data Gateways by its name or its id, including the system-defined destinations.
 attributes:

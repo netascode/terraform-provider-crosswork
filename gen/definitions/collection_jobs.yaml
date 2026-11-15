@@ -16,7 +16,7 @@ get_no_id: true
 data_source_no_id: true
 # The acceptance test needs a cluster with Crosswork Data Gateway for the destination.
 skip_minimum_test: true
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage a bulk collection job of Crosswork.
 ds_description: This data source can read a bulk collection job of Crosswork by its application id and context id, with its status.
 attributes:

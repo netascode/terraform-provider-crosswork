@@ -23,7 +23,7 @@ id_path: '!\"topology_discovery_settings\"'
 # The settings belong to the whole cluster, so the acceptance test writes the three flags and the destroy writes the defaults, which are all off.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the link discovery protocols of the topology.
 ds_description: This data source can read the link discovery protocols of the topology.
 attributes:

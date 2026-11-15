@@ -12,7 +12,7 @@ res_description: This resource can manage a global variable of Golden Configurat
 ds_description: This data source can read a global variable of Golden Configuration.
 no_resource: true
 no_data_source: true
-doc_category: Golden Config
+doc_category: Golden Configuration
 attributes:
   - model_name: name
     type: String

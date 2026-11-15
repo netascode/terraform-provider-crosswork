@@ -15,7 +15,7 @@ id_path: '!\"smart_licensing_transport\"'
 # The setting belongs to the whole cluster, so the acceptance test changes it and the destroy writes the default back.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the Smart Licensing transport settings of the cluster.
 ds_description: This data source can read the Smart Licensing transport settings of the cluster.
 attributes:

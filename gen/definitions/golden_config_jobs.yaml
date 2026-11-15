@@ -13,7 +13,7 @@ res_description: This resource applies a Golden Configuration template to device
 ds_description: This data source can read the devices a Golden Configuration template is applied to, with their conformance.
 no_resource: true
 no_data_source: true
-doc_category: Golden Config
+doc_category: Golden Configuration
 attributes:
   - model_name: template_name
     type: String

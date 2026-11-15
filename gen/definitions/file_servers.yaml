@@ -15,7 +15,7 @@ id_path: '!\"file_servers\"'
 # The servers belong to the whole cluster, so the acceptance test changes them and the destroy switches them off.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the file servers of the cluster.
 ds_description: This data source can read the file servers of the cluster.
 attributes:

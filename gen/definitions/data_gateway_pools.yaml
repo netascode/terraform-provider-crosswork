@@ -18,7 +18,7 @@ mutex: true
 # The acceptance test creates and removes a one-instance pool made of the instance with the first name (not the first free one: the role of an instance changes once it is in the pool), so it needs a cluster with no pool and a virtual IP of its subnet.
 skip_minimum_test: true
 test_tags: [CLUSTER]
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage a pool of Crosswork Data Gateway instances.
 ds_description: This data source can read a pool of Crosswork Data Gateway instances by its name or its id.
 attributes:

@@ -15,7 +15,7 @@ id_path: '!\"te_general_settings\"'
 # The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the general settings of traffic engineering.
 ds_description: This data source can read the general settings of traffic engineering.
 attributes:

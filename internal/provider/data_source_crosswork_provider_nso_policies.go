@@ -35,23 +35,23 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ datasource.DataSource              = &NSOProviderPoliciesDataSource{}
-	_ datasource.DataSourceWithConfigure = &NSOProviderPoliciesDataSource{}
+	_ datasource.DataSource              = &ProviderNSOPoliciesDataSource{}
+	_ datasource.DataSourceWithConfigure = &ProviderNSOPoliciesDataSource{}
 )
 
-func NewNSOProviderPoliciesDataSource() datasource.DataSource {
-	return &NSOProviderPoliciesDataSource{}
+func NewProviderNSOPoliciesDataSource() datasource.DataSource {
+	return &ProviderNSOPoliciesDataSource{}
 }
 
-type NSOProviderPoliciesDataSource struct {
+type ProviderNSOPoliciesDataSource struct {
 	clients map[string]*cw.Client
 }
 
-func (d *NSOProviderPoliciesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_nso_provider_policies"
+func (d *ProviderNSOPoliciesDataSource) Metadata(_ context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_provider_nso_policies"
 }
 
-func (d *NSOProviderPoliciesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *ProviderNSOPoliciesDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: "This data source can read the device onboarding policy of an NSO provider.",
@@ -129,7 +129,7 @@ func (d *NSOProviderPoliciesDataSource) Schema(ctx context.Context, req datasour
 	}
 }
 
-func (d *NSOProviderPoliciesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
+func (d *ProviderNSOPoliciesDataSource) Configure(_ context.Context, req datasource.ConfigureRequest, _ *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -139,16 +139,16 @@ func (d *NSOProviderPoliciesDataSource) Configure(_ context.Context, req datasou
 
 // clientFor returns the client of the selected instance, bound to ctx. An empty
 // instance selects the default client. An unknown instance adds an error to diags.
-func (d *NSOProviderPoliciesDataSource) clientFor(ctx context.Context, instance string, diags *diag.Diagnostics) (cw.Client, bool) {
+func (d *ProviderNSOPoliciesDataSource) clientFor(ctx context.Context, instance string, diags *diag.Diagnostics) (cw.Client, bool) {
 	return clientFor(ctx, d.clients, instance, diags)
 }
 
 // End of section. //template:end model
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (d *NSOProviderPoliciesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *ProviderNSOPoliciesDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	applyProviderMeta(d.clients, ctx, req.ProviderMeta)
-	var config NSOProviderPolicies
+	var config ProviderNSOPolicies
 
 	// Read config
 	diags := req.Config.Get(ctx, &config)

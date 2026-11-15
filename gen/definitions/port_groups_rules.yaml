@@ -13,7 +13,7 @@ put_id: true
 no_data_source: true
 # A condition needs a value (except blank and not_blank), so the minimum test has no valid condition.
 skip_minimum_test: true
-doc_category: Devices
+doc_category: Device Management
 res_description: This resource can manage the dynamic rule of a port group.
 attributes:
   - model_name: classifier

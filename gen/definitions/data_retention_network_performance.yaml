@@ -19,7 +19,7 @@ id_path: '!\"data_retention_network_performance\"'
 # The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the network performance data retention.
 ds_description: This data source can read the network performance data retention.
 attributes:

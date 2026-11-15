@@ -1,4 +1,4 @@
-resource "crosswork_nso_provider_policies" "example" {
+resource "crosswork_provider_nso_policies" "example" {
   provider_name         = "nso"
   match                 = true
   match_rule            = "*"

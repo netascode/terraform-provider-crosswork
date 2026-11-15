@@ -19,7 +19,7 @@ id_path: '!\"metric_thresholds\"'
 # The thresholds belong to the whole cluster, so the acceptance test changes one metric and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the metric thresholds of the topology.
 ds_description: This data source can read the metric thresholds of the topology.
 attributes:

@@ -13,7 +13,7 @@ get_no_id: true
 id_from_attribute: true
 # Needs existing devices, so there is no minimum test.
 skip_minimum_test: true
-doc_category: Devices
+doc_category: Device Management
 res_description: This resource makes a list of devices that are members of a device access group.
 attributes:
   - model_name: newGroupUuid

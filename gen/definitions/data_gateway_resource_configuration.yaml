@@ -19,7 +19,7 @@ mutex: true
 id_path: '!\"data_gateway_resource_configuration\"'
 skip_minimum_test: true
 test_tags: [CLUSTER]
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource can manage the memory and the state of the collectors of the Crosswork Data Gateways.
 ds_description: This data source can read the collectors of the Crosswork Data Gateways with their memory and state.
 attributes:

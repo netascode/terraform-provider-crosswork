@@ -43,24 +43,24 @@ import (
 // Section below is generated&owned by "gen/generator.go". //template:begin model
 
 // Ensure provider defined types fully satisfy framework interfaces
-var _ resource.Resource = &NSOProviderPoliciesResource{}
-var _ resource.ResourceWithImportState = &NSOProviderPoliciesResource{}
+var _ resource.Resource = &ProviderNSOPoliciesResource{}
+var _ resource.ResourceWithImportState = &ProviderNSOPoliciesResource{}
 
-func NewNSOProviderPoliciesResource() resource.Resource {
-	return &NSOProviderPoliciesResource{}
+func NewProviderNSOPoliciesResource() resource.Resource {
+	return &ProviderNSOPoliciesResource{}
 }
 
-type NSOProviderPoliciesResource struct {
+type ProviderNSOPoliciesResource struct {
 	clients               map[string]*cw.Client
 	AllowExistingOnCreate bool
 	cache                 *ThreadSafeCache
 }
 
-func (r *NSOProviderPoliciesResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_nso_provider_policies"
+func (r *ProviderNSOPoliciesResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_provider_nso_policies"
 }
 
-func (r *NSOProviderPoliciesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ProviderNSOPoliciesResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		// This description is used by the documentation generator and the language server.
 		MarkdownDescription: helpers.NewAttributeDescription("This resource can manage the device onboarding policy of an NSO provider.").String,
@@ -162,7 +162,7 @@ func (r *NSOProviderPoliciesResource) Schema(ctx context.Context, req resource.S
 	}
 }
 
-func (r *NSOProviderPoliciesResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ProviderNSOPoliciesResource) Configure(_ context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (r *NSOProviderPoliciesResource) Configure(_ context.Context, req resource.
 
 // clientFor returns the client of the selected instance, bound to ctx. An empty
 // instance selects the default client. An unknown instance adds an error to diags.
-func (r *NSOProviderPoliciesResource) clientFor(ctx context.Context, instance string, diags *diag.Diagnostics) (cw.Client, bool) {
+func (r *ProviderNSOPoliciesResource) clientFor(ctx context.Context, instance string, diags *diag.Diagnostics) (cw.Client, bool) {
 	return clientFor(ctx, r.clients, instance, diags)
 }
 
@@ -182,9 +182,9 @@ func (r *NSOProviderPoliciesResource) clientFor(ctx context.Context, instance st
 
 // Written by hand: the entry of the provider exists (the controller creates it with the provider), so a create writes the values of
 // the configuration into it, the same as an update.
-func (r *NSOProviderPoliciesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+func (r *ProviderNSOPoliciesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
 	applyProviderMeta(r.clients, ctx, req.ProviderMeta)
-	var plan NSOProviderPolicies
+	var plan ProviderNSOPolicies
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -199,7 +199,7 @@ func (r *NSOProviderPoliciesResource) Create(ctx context.Context, req resource.C
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Create", plan.ProviderName.ValueString()))
 
-	if err := applyNSOProviderPolicy(ctx, &c, &plan); err != nil {
+	if err := applyProviderNSOPolicy(ctx, &c, &plan); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s", "policy", err))
 		return
 	}
@@ -214,9 +214,9 @@ func (r *NSOProviderPoliciesResource) Create(ctx context.Context, req resource.C
 // End of section. //template:end create
 
 // Section below is generated&owned by "gen/generator.go". //template:begin read
-func (r *NSOProviderPoliciesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+func (r *ProviderNSOPoliciesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	applyProviderMeta(r.clients, ctx, req.ProviderMeta)
-	var state NSOProviderPolicies
+	var state ProviderNSOPolicies
 
 	// Read state
 	diags := req.State.Get(ctx, &state)
@@ -258,9 +258,9 @@ func (r *NSOProviderPoliciesResource) Read(ctx context.Context, req resource.Rea
 // End of section. //template:end read
 
 // Written by hand: the entry of the provider is replaced in the policy document, everything else in it is sent back as it was.
-func (r *NSOProviderPoliciesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+func (r *ProviderNSOPoliciesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
 	applyProviderMeta(r.clients, ctx, req.ProviderMeta)
-	var plan NSOProviderPolicies
+	var plan ProviderNSOPolicies
 
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
@@ -275,7 +275,7 @@ func (r *NSOProviderPoliciesResource) Update(ctx context.Context, req resource.U
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Update", plan.ProviderName.ValueString()))
 
-	if err := applyNSOProviderPolicy(ctx, &c, &plan); err != nil {
+	if err := applyProviderNSOPolicy(ctx, &c, &plan); err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s", "policy", err))
 		return
 	}
@@ -291,9 +291,9 @@ func (r *NSOProviderPoliciesResource) Update(ctx context.Context, req resource.U
 
 // Written by hand: the controller creates the policy with the NSO provider and removes it with the provider, so a destroy only
 // removes the resource from the state and leaves the policy as it is.
-func (r *NSOProviderPoliciesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+func (r *ProviderNSOPoliciesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
 	applyProviderMeta(r.clients, ctx, req.ProviderMeta)
-	var state NSOProviderPolicies
+	var state ProviderNSOPolicies
 
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -309,7 +309,7 @@ func (r *NSOProviderPoliciesResource) Delete(ctx context.Context, req resource.D
 // End of section. //template:end delete
 
 // Section below is generated&owned by "gen/generator.go". //template:begin import
-func (r *NSOProviderPoliciesResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+func (r *ProviderNSOPoliciesResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
 	idParts := strings.Split(req.ID, ",")
 
 	if len(idParts) != 1 || idParts[0] == "" {
@@ -326,9 +326,9 @@ func (r *NSOProviderPoliciesResource) ImportState(ctx context.Context, req resou
 // End of section. //template:end import
 
 // Section below is generated&owned by "gen/generator.go". //template:begin readcache
-func (r *NSOProviderPoliciesResource) ReadCache(ctx context.Context, c *cw.Client, req resource.ReadRequest, state NSOProviderPolicies, params string) (cw.Res, error) {
+func (r *ProviderNSOPoliciesResource) ReadCache(ctx context.Context, c *cw.Client, req resource.ReadRequest, state ProviderNSOPolicies, params string) (cw.Res, error) {
 	var err error
-	cacheKey := "NSOProviderPolicies::" + state.Instance.ValueString() + "::"
+	cacheKey := "ProviderNSOPolicies::" + state.Instance.ValueString() + "::"
 
 	_, cacheSuffix, found := strings.Cut(params, "?")
 	queryPart, err := url.ParseQuery(cacheSuffix)

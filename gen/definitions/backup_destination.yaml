@@ -15,7 +15,7 @@ id_path: '!\"backup_destination\"'
 skip_minimum_test: true
 test_tags: [SFTP]
 # The test needs a reachable SFTP server: set SFTP=1 and TF_VAR_sftp_host, TF_VAR_sftp_port, TF_VAR_sftp_username, TF_VAR_sftp_password and TF_VAR_sftp_remote_path.
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the remote backup destination (SFTP server) of the cluster.
 ds_description: This data source can read the remote backup destination of the cluster.
 attributes:

@@ -15,7 +15,7 @@ mutex: true
 # Needs a pool, which needs a free CDG instance, and existing devices, so there is no minimum test.
 skip_minimum_test: true
 test_tags: [CLUSTER]
-doc_category: Data Gateway
+doc_category: Data Gateways
 res_description: This resource attaches devices to a data gateway.
 attributes:
   - model_name: data_gateway_id

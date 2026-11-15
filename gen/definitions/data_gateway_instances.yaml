@@ -13,7 +13,7 @@ get_no_id: true
 data_source_no_id: true
 no_resource: true
 no_data_source: true
-doc_category: Data Gateway
+doc_category: Data Gateways
 attributes:
   - model_name: items
     tf_name: items

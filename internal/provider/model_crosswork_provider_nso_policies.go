@@ -29,7 +29,7 @@ import (
 // End of section. //template:end imports
 
 // Section below is generated&owned by "gen/generator.go". //template:begin types
-type NSOProviderPolicies struct {
+type ProviderNSOPolicies struct {
 	Instance           types.String              `tfsdk:"instance"`
 	Id                 types.String              `tfsdk:"id"`
 	ProviderName       types.String              `tfsdk:"provider_name"`
@@ -43,10 +43,10 @@ type NSOProviderPolicies struct {
 	SyncFromNsoRule    types.String              `tfsdk:"sync_from_nso_rule"`
 	CheckSync          types.Bool                `tfsdk:"check_sync"`
 	CheckSyncRule      types.String              `tfsdk:"check_sync_rule"`
-	Neds               []NSOProviderPoliciesNeds `tfsdk:"neds"`
+	Neds               []ProviderNSOPoliciesNeds `tfsdk:"neds"`
 }
 
-type NSOProviderPoliciesNeds struct {
+type ProviderNSOPoliciesNeds struct {
 	Ned  types.String `tfsdk:"ned"`
 	Rule types.String `tfsdk:"rule"`
 }
@@ -54,8 +54,8 @@ type NSOProviderPoliciesNeds struct {
 // End of section. //template:end types
 
 // Written by hand: one policy document holds every provider, so the path has no id.
-func (data NSOProviderPolicies) getPath() string {
-	return nsoPolicyPath
+func (data ProviderNSOPolicies) getPath() string {
+	return providerNSOPolicyPath
 }
 
 // End of section. //template:end getPath
@@ -70,7 +70,7 @@ func (data NSOProviderPolicies) getPath() string {
 
 // Section below is generated&owned by "gen/generator.go". //template:begin getPathGet
 
-func (data NSOProviderPolicies) getPathGet() string {
+func (data ProviderNSOPolicies) getPathGet() string {
 	return "/crosswork/inventory/v1/nso/policy/query"
 }
 
@@ -89,7 +89,7 @@ func (data NSOProviderPolicies) getPathGet() string {
 // End of section. //template:end getPathPlan
 
 // Written by hand: the controller answers with the policy of all NSO providers, and the resource reads the entry of its provider.
-func (data NSOProviderPolicies) readGet(c *cw.Client, path string) (cw.Res, error) {
+func (data ProviderNSOPolicies) readGet(c *cw.Client, path string) (cw.Res, error) {
 	res, err := c.Post(path, `{}`, cw.ReadOnly)
 	if err != nil {
 		return res, err
@@ -98,7 +98,7 @@ func (data NSOProviderPolicies) readGet(c *cw.Client, path string) (cw.Res, erro
 	if name == "" {
 		name = data.Id.ValueString()
 	}
-	return flattenNSOPolicyEntry(res, name)
+	return flattenProviderNSOPolicyEntry(res, name)
 }
 
 // End of section. //template:end readGet
@@ -108,7 +108,7 @@ func (data NSOProviderPolicies) readGet(c *cw.Client, path string) (cw.Res, erro
 // End of section. //template:end getPathIdQuery
 
 // Section below is generated&owned by "gen/generator.go". //template:begin toBody
-func (data NSOProviderPolicies) toBody(ctx context.Context, state NSOProviderPolicies) string {
+func (data ProviderNSOPolicies) toBody(ctx context.Context, state ProviderNSOPolicies) string {
 	body := ""
 	put := false
 	if state.Id.ValueString() != "" {
@@ -164,7 +164,7 @@ func (data NSOProviderPolicies) toBody(ctx context.Context, state NSOProviderPol
 // End of section. //template:end toBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin fromBody
-func (data *NSOProviderPolicies) fromBody(ctx context.Context, res gjson.Result) {
+func (data *ProviderNSOPolicies) fromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("match"); value.Exists() {
 		data.Match = types.BoolValue(value.Bool())
 	} else {
@@ -216,9 +216,9 @@ func (data *NSOProviderPolicies) fromBody(ctx context.Context, res gjson.Result)
 		data.CheckSyncRule = types.StringNull()
 	}
 	if value := res.Get("neds"); value.Exists() && len(value.Array()) > 0 {
-		data.Neds = make([]NSOProviderPoliciesNeds, 0)
+		data.Neds = make([]ProviderNSOPoliciesNeds, 0)
 		value.ForEach(func(k, v gjson.Result) bool {
-			item := NSOProviderPoliciesNeds{}
+			item := ProviderNSOPoliciesNeds{}
 			if cValue := v.Get("ned"); cValue.Exists() {
 				item.Ned = types.StringValue(cValue.String())
 			} else {
@@ -238,7 +238,7 @@ func (data *NSOProviderPolicies) fromBody(ctx context.Context, res gjson.Result)
 // End of section. //template:end fromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin updateFromBody
-func (data *NSOProviderPolicies) updateFromBody(ctx context.Context, res gjson.Result) {
+func (data *ProviderNSOPolicies) updateFromBody(ctx context.Context, res gjson.Result) {
 	if value := res.Get("match"); value.Exists() && !data.Match.IsNull() {
 		data.Match = types.BoolValue(value.Bool())
 	} else {
@@ -328,7 +328,7 @@ func (data *NSOProviderPolicies) updateFromBody(ctx context.Context, res gjson.R
 // End of section. //template:end updateFromBody
 
 // Section below is generated&owned by "gen/generator.go". //template:begin isNull
-func (data *NSOProviderPolicies) isNull(ctx context.Context, res gjson.Result) bool {
+func (data *ProviderNSOPolicies) isNull(ctx context.Context, res gjson.Result) bool {
 	if !data.Match.IsNull() {
 		return false
 	}

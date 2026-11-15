@@ -15,7 +15,7 @@ id_path: '!\"alarm_settings\"'
 # The values belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the cleanup options and the trap and syslog processing of alarms and events.
 ds_description: This data source can read the cleanup options and the trap and syslog processing of alarms and events.
 attributes:

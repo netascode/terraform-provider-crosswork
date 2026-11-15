@@ -15,7 +15,7 @@ mutex: true
 # The routes belong to the whole cluster, so the acceptance test creates one route from the documentation range and the destroy removes it.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage a static route for Zero Touch Provisioning.
 ds_description: This data source can read a static route of the zero touch provisioning.
 attributes:

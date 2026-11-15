@@ -15,7 +15,7 @@ id_path: '!\"gnmi_settings\"'
 # The flags belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
-doc_category: Settings
+doc_category: System Settings
 res_description: This resource can manage the gNMI alarm collection of the vendors.
 ds_description: This data source can read the gNMI alarm collection of the vendors.
 attributes:

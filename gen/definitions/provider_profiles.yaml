@@ -13,7 +13,7 @@ delete_body: '{"providers":[{"name":"{id}"}]}'
 get_before_delete: true
 # A connection needs an address or an FQDN, both optional: no minimum test.
 skip_minimum_test: true
-doc_category: Administration
+doc_category: Providers
 res_description: This resource can manage a provider profile.
 # Requests wrap the provider in "providers", the read answers under "data".
 attributes:
