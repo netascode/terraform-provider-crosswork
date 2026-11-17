@@ -121,7 +121,7 @@ func (p *CwProvider) Schema(ctx context.Context, req provider.SchemaRequest, res
 				},
 			},
 			"max_timeout": schema.Int64Attribute{
-				MarkdownDescription: "Longest time in seconds to wait for the NSO plan of a service after it was written (the Services and Traffic Engineering resources), unless the resource sets its own. This can also be set as the CW_MAX_TIMEOUT environment variable. Defaults to `180`.",
+				MarkdownDescription: "Longest time in seconds to wait for the NSO plan of a service after it was written (the Services and Traffic Engineering resources), unless the resource sets its own. This can also be set as the CW_MAX_TIMEOUT environment variable. Defaults to `300`.",
 				Optional:            true,
 				Validators: []validator.Int64{
 					int64validator.Between(0, 3600),
@@ -318,7 +318,7 @@ func (p *CwProvider) Configure(ctx context.Context, req provider.ConfigureReques
 	if config.MaxTimeout.IsNull() {
 		maxTimeoutStr := os.Getenv("CW_MAX_TIMEOUT")
 		if maxTimeoutStr == "" {
-			maxTimeout = 180
+			maxTimeout = 300
 		} else {
 			maxTimeout, _ = strconv.ParseInt(maxTimeoutStr, 0, 64)
 		}
