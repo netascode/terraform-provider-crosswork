@@ -10,6 +10,8 @@ name: Assign Devices To Access Group
 rest_endpoint: /crosswork/grouping/v1/grouping/group/member/copy
 no_data_source: true
 get_no_id: true
+# The hand-written writes take the same lock (cw.UseMutex in assign_devices_to_access_group_logic.go).
+mutex: true
 id_from_attribute: true
 # Needs existing devices, so there is no minimum test.
 skip_minimum_test: true

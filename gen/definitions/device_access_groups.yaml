@@ -3,6 +3,7 @@ name: Device Access Groups
 rest_endpoint: /crosswork/grouping/v1/grouping/group
 get_extra_query_params: /details
 id_path: group.uuid
+mutex: true
 doc_category: Administration
 res_description: This resource can manage a device access group.
 attributes:

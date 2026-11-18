@@ -250,6 +250,8 @@ func searchSourceGroups(c *cw.Client, uuids []string) (map[string]string, error)
 	return found, nil
 }
 
+// addMembers and removeMembers write with cw.UseMutex: group membership writes run one at a time, so they do not deadlock
+// with each other or with the user writes (the users resource takes the same lock).
 func addMembers(c *cw.Client, group string, uuids []string) error {
 	sources, err := sourceGroups(c, uuids)
 	if err != nil {
@@ -267,7 +269,7 @@ func addMembers(c *cw.Client, group string, uuids []string) error {
 		body, _ := sjson.Set("", "groupUuid", source)
 		body, _ = sjson.Set(body, "newGroupUuid", group)
 		body, _ = sjson.Set(body, "references", refs)
-		if res, err := c.Post(groupingPath+"/group/member/copy", body); err != nil {
+		if res, err := c.Post(groupingPath+"/group/member/copy", body, cw.UseMutex); err != nil {
 			return fmt.Errorf("adding devices to the group: %w, %s", err, res.String())
 		}
 	}
@@ -276,7 +278,7 @@ func addMembers(c *cw.Client, group string, uuids []string) error {
 
 func removeMembers(c *cw.Client, group string, uuids []string) error {
 	body, _ := sjson.Set("", "references", uuids)
-	if res, err := c.Put(fmt.Sprintf("%s/group/%s/members", groupingPath, group), body); err != nil {
+	if res, err := c.Put(fmt.Sprintf("%s/group/%s/members", groupingPath, group), body, cw.UseMutex); err != nil {
 		return fmt.Errorf("removing devices from the group: %w, %s", err, res.String())
 	}
 	return nil

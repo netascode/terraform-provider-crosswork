@@ -215,7 +215,7 @@ func (r *UsersResource) Create(ctx context.Context, req resource.CreateRequest, 
 	body = plan.postBody(body)
 
 	params := ""
-	res, err := c.Post(plan.getPath()+params, body)
+	res, err := c.Post(plan.getPath()+params, body, cw.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (%s), got error: %s, %s", "POST", err, res.String()))
 		return
@@ -307,7 +307,7 @@ func (r *UsersResource) Update(ctx context.Context, req resource.UpdateRequest, 
 
 	body := plan.toBody(ctx, state)
 	params := ""
-	res, err := c.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body)
+	res, err := c.Put(plan.getPath()+"/"+url.QueryEscape(plan.Id.ValueString())+params, body, cw.UseMutex)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
@@ -339,7 +339,7 @@ func (r *UsersResource) Delete(ctx context.Context, req resource.DeleteRequest, 
 	}
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
-	res, err := c.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()))
+	res, err := c.Delete(state.getPath()+"/"+url.QueryEscape(state.Id.ValueString()), cw.UseMutex)
 	if err != nil && !strings.Contains(err.Error(), "StatusCode 404") && !cw.IsNotFound(err) {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return

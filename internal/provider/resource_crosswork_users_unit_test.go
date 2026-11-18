@@ -24,7 +24,9 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -43,6 +45,11 @@ type userStub struct {
 	updates int
 	deletes int
 	locks   int
+
+	// deadlockOnOverlap makes a write that overlaps another write fail like Crosswork does (500, pq: deadlock detected).
+	deadlockOnOverlap bool
+	inflight          int32
+	overlaps          int32
 }
 
 func newUserStub(t *testing.T) *userStub {
@@ -71,6 +78,16 @@ func userFail(w http.ResponseWriter, code int, msg string) {
 }
 
 func (s *userStub) serve(w http.ResponseWriter, r *http.Request) {
+	if s.deadlockOnOverlap && r.Method != http.MethodGet {
+		atomic.AddInt32(&s.inflight, 1)
+		defer atomic.AddInt32(&s.inflight, -1)
+		time.Sleep(100 * time.Millisecond) // long enough for parallel writes to overlap
+		if atomic.LoadInt32(&s.inflight) > 1 {
+			atomic.AddInt32(&s.overlaps, 1)
+			userFail(w, 500, "Failed to create user: pq: deadlock detected")
+			return
+		}
+	}
 	raw, _ := io.ReadAll(r.Body)
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -325,5 +342,42 @@ func TestUsersCreateExisting(t *testing.T) {
 	})
 	if got := s.user("cwtest-unit"); got["FirstName"] != "Other" {
 		t.Errorf("the existing user was changed: %v", got)
+	}
+}
+
+// The users definition has mutex: true, so parallel creates and deletes of many users are sent one at a time; without it
+// Crosswork answers some of them with "pq: deadlock detected".
+func TestUsersWritesAreSerialized(t *testing.T) {
+	clearEnv(t)
+	Shutdown()
+	s := newUserStub(t)
+	s.deadlockOnOverlap = true
+
+	cfg := s.providerBlock() + `
+resource "crosswork_users" "test" {
+  count               = 8
+  username            = "cwtest-par-${count.index}"
+  policy_id           = "admin"
+  first_name          = "Par"
+  last_name           = "User"
+  password_wo         = "Secret-1"
+  password_wo_version = 1
+  device_access_groups = [{
+    uuid        = "group-1"
+    domain_name = "ALL-ACCESS"
+  }]
+}
+`
+	resource.UnitTest(t, resource.TestCase{
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps:                    []resource.TestStep{{Config: cfg}},
+	})
+	if n := atomic.LoadInt32(&s.overlaps); n != 0 {
+		t.Errorf("%d writes overlapped; the users writes are not serialized", n)
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.creates != 8 || s.deletes != 8 {
+		t.Errorf("stub saw %d creates and %d deletes; want 8 and 8", s.creates, s.deletes)
 	}
 }

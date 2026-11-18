@@ -5,6 +5,7 @@ id_from_attribute: true
 post_body: '{"{id}": {body}}'
 doc_category: Administration
 res_description: This resource can manage a user in the local authentication store.
+mutex: true
 skip_minimum_test: true
 attributes:
   - model_name: Username
