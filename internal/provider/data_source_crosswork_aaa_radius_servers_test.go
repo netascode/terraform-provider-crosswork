@@ -1,0 +1,88 @@
+// Copyright © 2026 Cisco Systems, Inc. and its affiliates.
+// All rights reserved.
+//
+// Licensed under the Mozilla Public License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://mozilla.org/MPL/2.0/
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: MPL-2.0
+
+package provider
+
+// Section below is generated&owned by "gen/generator.go". //template:begin imports
+import (
+	"os"
+	"testing"
+
+	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+)
+
+// End of section. //template:end imports
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSource
+func TestAccDataSourceCwAAARADIUSServers(t *testing.T) {
+	if os.Getenv("AAA") == "" {
+		t.Skip("skipping test, set environment variable AAA")
+	}
+	var checks []resource.TestCheckFunc
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.host", "192.0.2.20"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.port", "1812"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.secret_format", "ascii"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.retransmit_timeout", "5"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.retries", "3"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.auth_type", "pap"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.priority", "40"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.policy_id", "role0"))
+	checks = append(checks, resource.TestCheckResourceAttr("data.crosswork_aaa_radius_servers.test", "servers.0.virtual_domain", "deviceAccessGroups"))
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataSourceCwAAARADIUSServersConfig(),
+				Check:  resource.ComposeTestCheckFunc(checks...),
+			},
+		},
+	})
+}
+
+// End of section. //template:end testAccDataSource
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testPrerequisites
+// End of section. //template:end testPrerequisites
+
+// Section below is generated&owned by "gen/generator.go". //template:begin testAccDataSourceConfig
+func testAccDataSourceCwAAARADIUSServersConfig() string {
+	config := `resource "crosswork_aaa_radius_servers" "test" {` + "\n"
+	config += `	servers = [{` + "\n"
+	config += `	  host = "192.0.2.20"` + "\n"
+	config += `	  port = 1812` + "\n"
+	config += `	  secret_wo = "AAASecret"` + "\n"
+	config += `	  secret_wo_version = 1` + "\n"
+	config += `	  secret_format = "ascii"` + "\n"
+	config += `	  retransmit_timeout = 5` + "\n"
+	config += `	  retries = 3` + "\n"
+	config += `	  auth_type = "pap"` + "\n"
+	config += `	  priority = 40` + "\n"
+	config += `	  policy_id = "role0"` + "\n"
+	config += `	  virtual_domain = "deviceAccessGroups"` + "\n"
+	config += `	}]` + "\n"
+	config += `}` + "\n"
+
+	config += `
+		data "crosswork_aaa_radius_servers" "test" {
+			depends_on = [crosswork_aaa_radius_servers.test]
+		}
+	`
+	return config
+}
+
+// End of section. //template:end testAccDataSourceConfig

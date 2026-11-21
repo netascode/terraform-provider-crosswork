@@ -27,7 +27,7 @@ endif
 # The offline unit tests are not part of it: use make unit
 # DEBUG=1 sets TF_LOG=DEBUG, clears any TF_LOG_PATH and writes the full output, Terraform log included, to test-output.log; the terminal shows the test results only
 # NAME must be a definition name (e.g., "Users", "Network Devices") matching the name: field in gen/definitions/*.yaml
-# Tests that need a tag (SETTINGS, CLUSTER, L2VPN, L2VPN_OAM, SFTP) skip themselves when it is not set in .env
+# Tests that need a tag skip themselves when it is not set in .env
 .PHONY: test
 test:
 	@echo "========================================="

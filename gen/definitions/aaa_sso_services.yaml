@@ -1,0 +1,52 @@
+---
+name: AAA SSO Services
+rest_endpoint: /crosswork/authconfig/v1/sso/idp/services
+get_rest_endpoint: /crosswork/authconfig/v1/sso/idp/services
+get_no_id: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/authconfig/v1/sso/idp/services
+delete_body: '{"registeredServiceProvider":[]}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"aaa_sso_services\"'
+# The list belongs to the whole cluster and includes the service that signs users in to NSO, so the acceptance test needs it in the configuration.
+skip_minimum_test: true
+test_tags: [AAA]
+doc_category: AAA
+res_description: This resource can manage the SSO service providers used for identity federation.
+ds_description: This data source can read the SSO service providers used for identity federation.
+attributes:
+  - model_name: registeredServiceProvider
+    tf_name: services
+    type: List
+    always_include: true
+    description: SSO service providers
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the service provider, letters and digits only
+        example: cwtestsso
+      - model_name: evaluationOrder
+        tf_name: evaluation_order
+        type: Int64
+        mandatory: true
+        description: Order in which the service providers are evaluated
+        example: 3
+      - model_name: metadata
+        type: String
+        write_only: true
+        mandatory: true
+        description: SAML metadata XML of the service provider, base64 encoded
+        example: PE1ldGFkYXRhLz4=
+      - model_name: metadataLocation
+        tf_name: metadata_location
+        type: String
+        mandatory: true
+        description: File name of the metadata
+        example: cwtest-metadata.xml

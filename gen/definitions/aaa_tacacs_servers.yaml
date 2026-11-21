@@ -1,0 +1,95 @@
+---
+name: AAA TACACS Servers
+rest_endpoint: /crosswork/authconfig/v1/remote/tacacs
+get_rest_endpoint: /crosswork/authconfig/v1/remote/tacacs
+get_no_id: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/authconfig/v1/remote/tacacs
+delete_body: '{"tacacs_servers":[]}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"aaa_tacacs_servers\"'
+# The list belongs to the whole cluster and replaces the servers that log users in, so the acceptance test needs the real server in the configuration.
+skip_minimum_test: true
+test_tags: [AAA]
+doc_category: AAA
+res_description: This resource can manage the TACACS+ servers used for authentication.
+ds_description: This data source can read the TACACS+ servers used for authentication.
+attributes:
+  - model_name: tacacs_servers
+    tf_name: servers
+    type: List
+    always_include: true
+    description: TACACS+ servers
+    attributes:
+      - model_name: host
+        type: String
+        id: true
+        mandatory: true
+        description: IP address or host name of the server
+        example: 192.0.2.10
+      - model_name: port
+        type: Int64
+        default_value: 49
+        description: Port of the server
+        example: 49
+      - model_name: secret
+        type: String
+        write_only: true
+        write_only_tf: true
+        mandatory: true
+        description: Shared secret
+        example: AAASecret
+      - model_name: secretFormat
+        tf_name: secret_format
+        type: String
+        enum_values: [ascii, hex]
+        default_value: ascii
+        description: Format of the shared secret
+        example: ascii
+      - model_name: service
+        type: String
+        mandatory: true
+        description: TACACS+ service name to request
+        example: crosswork
+      - model_name: priority
+        type: Int64
+        mandatory: true
+        description: Order of the server among all remote authentication servers
+        example: 30
+      - model_name: timeout
+        tf_name: retransmit_timeout
+        type: Int64
+        description: Retransmit timeout in seconds
+        example: 10
+      - model_name: retries
+        type: Int64
+        default_value: 0
+        description: Number of retries before the request fails
+        example: 3
+      - model_name: authType
+        tf_name: auth_type
+        type: String
+        enum_values: [pap, chap]
+        default_value: pap
+        description: Authentication type
+        example: pap
+      - model_name: interface
+        type: String
+        description: Interface IP address Crosswork uses to reach the server
+        example: 192.0.2.1
+      - model_name: policy-id
+        tf_name: policy_id
+        type: String
+        description: Key name of the role on the server
+        example: role0
+      - model_name: virtualDomain
+        tf_name: virtual_domain
+        type: String
+        default_value: deviceAccessGroups
+        description: Device access group attribute
+        example: deviceAccessGroups

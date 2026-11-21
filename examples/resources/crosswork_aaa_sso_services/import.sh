@@ -1,0 +1,1 @@
+terraform import crosswork_aaa_sso_services.example "aaa_sso_services"

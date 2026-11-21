@@ -1,0 +1,1 @@
+terraform import crosswork_aaa_password_policy.example "aaa_password_policy"

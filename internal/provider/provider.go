@@ -421,6 +421,12 @@ func (p *CwProvider) Configure(ctx context.Context, req provider.ConfigureReques
 
 func (p *CwProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
+		NewAAALDAPServersResource,
+		NewAAAPasswordPolicyResource,
+		NewAAARADIUSServersResource,
+		NewAAASessionSettingsResource,
+		NewAAASSOServicesResource,
+		NewAAATACACSServersResource,
 		NewAlarmSettingsResource,
 		NewAssignDevicesToAccessGroupResource,
 		NewAssignDevicesToDataGatewayResource,
@@ -488,6 +494,12 @@ func (p *CwProvider) Resources(ctx context.Context) []func() resource.Resource {
 
 func (p *CwProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
+		NewAAALDAPServersDataSource,
+		NewAAAPasswordPolicyDataSource,
+		NewAAARADIUSServersDataSource,
+		NewAAASessionSettingsDataSource,
+		NewAAASSOServicesDataSource,
+		NewAAATACACSServersDataSource,
 		NewAlarmSettingsDataSource,
 		NewBackupDestinationDataSource,
 		NewCredentialProfilesDataSource,

@@ -1,0 +1,1 @@
+terraform import crosswork_aaa_session_settings.example "aaa_session_settings"

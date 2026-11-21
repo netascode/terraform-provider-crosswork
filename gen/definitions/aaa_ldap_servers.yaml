@@ -1,0 +1,153 @@
+---
+name: AAA LDAP Servers
+rest_endpoint: /crosswork/authconfig/v1/remote/ldap
+get_rest_endpoint: /crosswork/authconfig/v1/remote/ldap
+get_no_id: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/authconfig/v1/remote/ldap
+delete_body: '{"ldap_server":[],"ldap_attr_servers":{"ldap_attr_server":[]}}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"aaa_ldap_servers\"'
+# The list belongs to the whole cluster and replaces the servers that log users in, so the acceptance test needs a cluster that may change its authentication.
+skip_minimum_test: true
+test_tags: [AAA]
+doc_category: AAA
+res_description: This resource can manage the LDAP servers used for authentication.
+ds_description: This data source can read the LDAP servers used for authentication.
+attributes:
+  - model_name: ldap_server
+    tf_name: servers
+    type: List
+    always_include: true
+    description: LDAP servers
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the connection
+        example: cwtest-ldap
+      - model_name: ldapUrl
+        tf_name: ldap_url
+        type: String
+        mandatory: true
+        description: URL of the server, `ldap://` or `ldaps://`
+        example: ldap://192.0.2.30:389
+      - model_name: bindDn
+        tf_name: bind_dn
+        type: String
+        mandatory: true
+        description: Distinguished name used to bind to the server
+        example: cn=admin,dc=example,dc=org
+      - model_name: bindCredential
+        tf_name: bind_credential
+        type: String
+        write_only: true
+        write_only_tf: true
+        mandatory: true
+        description: Password used to bind to the server
+        example: AAASecret
+      - model_name: baseDn
+        tf_name: base_dn
+        type: String
+        mandatory: true
+        description: Distinguished name where the search for users starts
+        example: dc=example,dc=org
+      - model_name: userFilter
+        tf_name: user_filter
+        type: String
+        mandatory: true
+        description: Filter that matches the users, with `{user}` for the user name
+        example: uid={user}
+      - model_name: dnFormat
+        tf_name: dn_format
+        type: String
+        mandatory: true
+        description: Format of the distinguished name of a user, with `%s` for the user name
+        example: uid=%s,dc=example,dc=org
+      - model_name: principalAttributeId
+        tf_name: principal_attribute_id
+        type: String
+        mandatory: true
+        description: Attribute of the user name in the directory
+        example: uid
+      - model_name: policyId
+        tf_name: policy_id
+        type: String
+        mandatory: true
+        description: Attribute of the role mapping in the directory
+        example: crossworkPolicyId
+      - model_name: order
+        type: Int64
+        mandatory: true
+        description: Order of the server among all remote authentication servers
+        example: 50
+      - model_name: connectTimeout
+        tf_name: connect_timeout
+        type: Int64
+        mandatory: true
+        description: Connection timeout in seconds
+        example: 5
+  - model_name: ldap_attr_server
+    data_path: ldap_attr_servers
+    tf_name: attribute_servers
+    type: List
+    always_include: true
+    description: LDAP servers that look up the role of a user, one for each server
+    attributes:
+      - model_name: ldapUrl
+        tf_name: ldap_url
+        type: String
+        id: true
+        mandatory: true
+        description: URL of the server, `ldap://` followed by host and port
+        example: ldap://192.0.2.30:389
+      - model_name: baseDn
+        tf_name: base_dn
+        type: String
+        mandatory: true
+        description: Distinguished name where the search for the role starts
+        example: ou=groups,dc=example,dc=org
+      - model_name: bindDn
+        tf_name: bind_dn
+        type: String
+        mandatory: true
+        description: Distinguished name used to bind to the server
+        example: cn=admin,dc=example,dc=org
+      - model_name: bindCredential
+        tf_name: bind_credential
+        type: String
+        write_only: true
+        write_only_tf: true
+        mandatory: true
+        description: Password used to bind to the server
+        example: AAASecret
+      - model_name: userFilter
+        tf_name: user_filter
+        type: String
+        mandatory: true
+        description: Attribute of the directory that maps the user to its role
+        example: memberOf
+      - model_name: connectTimeout
+        tf_name: connect_timeout
+        type: Int64
+        mandatory: true
+        description: Connection timeout in seconds
+        example: 5
+      - model_name: failFast
+        tf_name: fail_fast
+        type: Bool
+        default_value: false
+        description: Fail at once when the server cannot be reached
+        example: false
+      - model_name: attributes
+        type: Map
+        element_type: String
+        mandatory: true
+        description: Map of the directory key that carries the role to `policy_id`
+        example: '{ crossworkPolicyId = "policy_id" }'

@@ -1,0 +1,60 @@
+---
+# hand-written:
+#   resource: create, read, update, delete
+#   data source: read
+#   model: -
+#   helpers: aaa_session_settings_logic.go
+#   tests: aaa_session_settings_logic_test.go (offline tests of the body and of the two calls)
+#   why: the source IP setting is not part of the session body (the controller refuses it there); it is read and written through the cluster manager, so every write and read makes a second call
+name: AAA Session Settings
+rest_endpoint: /crosswork/aaa/v1/sessionconfig
+get_rest_endpoint: /crosswork/aaa/v1/sessionconfig
+get_no_id: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/aaa/v1/sessionconfig
+delete_body: '{"FallbackType":"FB_ON_NORESP_AUTH_FAILURE","IdleSessionTimeout":30,"NumParallelSessions":100,"NumParallelSessionsPerUser":100}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"aaa_session_settings\"'
+# The settings belong to the whole cluster, so the acceptance test changes them and the destroy writes the documented defaults.
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: AAA
+res_description: This resource can manage the AAA settings.
+ds_description: This data source can read the AAA settings.
+attributes:
+  - model_name: FallbackType
+    tf_name: fallback_type
+    type: String
+    enum_values: [NO_FALLBACK, FB_ON_NO_RESPONSE, FB_ON_NORESP_AUTH_FAILURE]
+    default_value: FB_ON_NORESP_AUTH_FAILURE
+    description: When users who are not in the remote servers may fall back to local authentication
+    example: FB_ON_NO_RESPONSE
+  - model_name: IdleSessionTimeout
+    tf_name: idle_session_timeout
+    type: Int64
+    default_value: 30
+    description: Minutes after which an idle browser session is logged out
+    example: 60
+  - model_name: NumParallelSessions
+    tf_name: parallel_sessions
+    type: Int64
+    default_value: 100
+    description: Number of parallel sessions of the cluster
+    example: 100
+  - model_name: NumParallelSessionsPerUser
+    tf_name: parallel_sessions_per_user
+    type: Int64
+    default_value: 100
+    description: Number of parallel sessions of one user
+    example: 100
+  - model_name: IsEnabled
+    tf_name: source_ip_auditing
+    type: Bool
+    default_value: false
+    description: Record the source IP address of users for auditing
+    example: true
