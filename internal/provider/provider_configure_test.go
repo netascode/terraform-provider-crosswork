@@ -328,7 +328,7 @@ func TestConfigureMaxTimeout(t *testing.T) {
 	for name, tc := range map[string]struct {
 		env  string
 		want int
-	}{"default": {"", 180}, "environment": {"45", 45}} {
+	}{"default": {"", 300}, "environment": {"45", 45}} {
 		t.Run(name, func(t *testing.T) {
 			clearEnv(t)
 			Shutdown()
