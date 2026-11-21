@@ -162,8 +162,8 @@ github.com/mitchellh/mapstructure v1.5.0/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RR
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
 github.com/mitchellh/reflectwalk v1.0.2 h1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=
 github.com/mitchellh/reflectwalk v1.0.2/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
-github.com/netascode/go-crosswork v0.1.1 h1:ksKiG3XBOsHBG5xmUyYAUSLZeA4NDG9XIEp3PJt59Ew=
-github.com/netascode/go-crosswork v0.1.1/go.mod h1:069piFPH4NJMZ0ktIMf8wkWe305McN1wS9nib67Pmvs=
+github.com/netascode/go-crosswork v0.1.2 h1:mh7MGEtFMXQMBEr6NQ78t2+K1ol0BYtkXwvZSPJ+wdg=
+github.com/netascode/go-crosswork v0.1.2/go.mod h1:069piFPH4NJMZ0ktIMf8wkWe305McN1wS9nib67Pmvs=
 github.com/oklog/run v1.2.0 h1:O8x3yXwah4A73hJdlrwo/2X6J62gE5qTMusH0dvz60E=
 github.com/oklog/run v1.2.0/go.mod h1:mgDbKRSwPhJfesJ4PntqFUbKQRZ50NgmZTSPlFA0YFk=
 github.com/pjbgf/sha1cd v0.3.2 h1:a9wb0bp1oC2TGwStyn0Umc/IGKQnEgF0vVaZ8QF8eo4=
