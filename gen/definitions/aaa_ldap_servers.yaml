@@ -11,6 +11,8 @@ delete_rest_endpoint: /crosswork/authconfig/v1/remote/ldap
 delete_body: '{"ldap_server":[],"ldap_attr_servers":{"ldap_attr_server":[]}}'
 data_source_no_id: true
 data_source_no_inputs: true
+# The library does not use the client-wide write lock for this path: a write here takes a lock of its own, lets it go
+# at once and shares one wait for the login to recover with the other AAA writes (go-crosswork, restartsLogin).
 mutex: true
 id_path: '!\"aaa_ldap_servers\"'
 # The list belongs to the whole cluster and replaces the servers that log users in, so the acceptance test needs a cluster that may change its authentication.

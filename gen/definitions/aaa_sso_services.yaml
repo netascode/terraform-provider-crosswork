@@ -11,6 +11,8 @@ delete_rest_endpoint: /crosswork/authconfig/v1/sso/idp/services
 delete_body: '{"registeredServiceProvider":[]}'
 data_source_no_id: true
 data_source_no_inputs: true
+# The library does not use the client-wide write lock for this path: a write here takes a lock of its own, lets it go
+# at once and shares one wait for the login to recover with the other AAA writes (go-crosswork, restartsLogin).
 mutex: true
 id_path: '!\"aaa_sso_services\"'
 # The list belongs to the whole cluster and includes the service that signs users in to NSO, so the acceptance test needs it in the configuration.
