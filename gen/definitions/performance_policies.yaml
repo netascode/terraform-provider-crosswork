@@ -1,0 +1,131 @@
+---
+# hand-written:
+#   resource: create, read, update, import
+#   data source: read
+#   model: toBody, fromBody, updateFromBody
+#   helpers: performance_policies_logic.go
+#   tests: performance_policies_logic_test.go plus performance_policies_test.go
+name: Performance Policies
+rest_endpoint: /crosswork/performance/v1/policies
+id_path: monitoringPolicy.id
+doc_category: Device Management
+res_description: This resource can manage a performance monitoring policy.
+ds_description: This data source can read a performance monitoring policy.
+# A policy needs a target, and only one of the three is allowed, so the minimum test would be refused.
+skip_minimum_test: true
+attributes:
+  - model_name: name
+    type: String
+    requires_replace: true
+    mandatory: true
+    data_source_query: true
+    description: Policy name, 1 to 255 characters
+    example: cwtest-policy
+  - model_name: policyTemplate
+    tf_name: policy_template
+    type: String
+    requires_replace: true
+    mandatory: true
+    description: Policy type, for example `deviceHealth` or `INTERFACE`
+    example: deviceHealth
+  - model_name: description
+    type: String
+    null_on_empty: true
+    description: Policy description
+    example: Test policy
+  - model_name: contact
+    type: String
+    description: Contact written into the tag of the policy
+    example: noc@example.com
+  - model_name: active
+    type: Bool
+    default_value: true
+    description: Whether the policy collects data
+    example: true
+  - model_name: devices
+    type: Set
+    element_type: String
+    description: Devices to poll, by their inventory id; set one of `devices`, `device_groups` and `port_groups`
+    example: cwtest-dev-full
+    exclude_test: true
+  - model_name: deviceGroups
+    tf_name: device_groups
+    type: Set
+    element_type: String
+    description: Ids of the device groups to poll
+    example: 2661ed2d-11fb-49c4-9f9f-f71f1c12767b
+    test_value: '[crosswork_device_groups.test.id]'
+  - model_name: portGroups
+    tf_name: port_groups
+    type: Set
+    element_type: String
+    description: Ids of the port groups to poll
+    example: d958313a-5d5c-48aa-83ec-4918faa5286c
+    exclude_test: true
+  - model_name: schemaIntervals
+    tf_name: schema_intervals
+    type: Set
+    mandatory: true
+    description: Polling intervals by schema, one row for each schema of the policy type
+    example: '[{ schema = "CPU", seconds = 600 }]'
+    attributes:
+      - model_name: schema
+        type: String
+        mandatory: true
+        description: Schema of the policy type, for example `CPU`
+        example: CPU
+      - model_name: seconds
+        type: Int64
+        mandatory: true
+        description: Polling interval in seconds, 0 for no polling
+        example: 600
+  - model_name: thresholds
+    type: Map
+    map_key_example: cpuUtilization
+    description: Thresholds by metric, for example `cpuUtilization`
+    attributes:
+      - model_name: conditions
+        type: List
+        mandatory: true
+        description: Conditions of the metric, in order
+        example: '[{ relation = "GE", value = "90", count = 2, severity = "CRITICAL" }]'
+        attributes:
+          - model_name: relation
+            type: String
+            mandatory: true
+            enum_values: [EQ, GT, GE, LT, LE]
+            description: Comparison of the metric with the value
+            example: GE
+          - model_name: value
+            type: String
+            mandatory: true
+            description: Value of the threshold
+            example: 90
+          - model_name: count
+            type: Int64
+            mandatory: true
+            description: Number of polls that must match before the alarm is raised
+            example: 2
+          - model_name: severity
+            type: String
+            mandatory: true
+            enum_values: [CRITICAL, MAJOR, MINOR, WARNING, INFORMATION]
+            description: Severity of the alarm, `INFORMATION` raises an event
+            example: CRITICAL
+          - model_name: matchCos
+            tf_name: match_cos
+            type: Set
+            element_type: Int64
+            description: Classes of service of a Quality of service drop metric, 0 to 7
+            exclude_example: true
+            exclude_test: true
+
+test_prerequisites: |
+  data "crosswork_groupings" "anchor" {
+    classifier = "LocationDevices"
+  }
+
+  resource "crosswork_device_groups" "test" {
+    name        = "cwtest-pp-group"
+    parent_uuid = [for group in data.crosswork_groupings.anchor.items : group.id if group.discovery_type == "StaticSystem" && group.subgroups_allowed][0]
+  }
