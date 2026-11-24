@@ -1,0 +1,109 @@
+---
+# hand-written:
+#   resource: read (refuses a policy that is not a Device policy)
+#   data source: read
+#   model: toBody, fromBody, updateFromBody
+#   helpers: device_notification_policies_logic.go
+#   tests: device_notification_policies_logic_test.go (offline builder and parser) plus the acceptance tests
+#   why: Device policies are written as a Lisp criteria and one rule per receiver on the alarm-forwarding API. The provider builds
+#   the Lisp from `filters` and `device_group` and parses it back on read.
+name: Device Notification Policies
+rest_endpoint: /crosswork/alarm-forwarding/v1/alarm-forwarding/policy/Alarms/group/%v
+post_rest_endpoint: /crosswork/alarm-forwarding/v1/alarm-forwarding/policy/Alarms/group
+get_rest_endpoint: /crosswork/alarm-forwarding/v1/alarm-forwarding/policy/Alarms
+put_rest_endpoint: /crosswork/alarm-forwarding/v1/alarm-forwarding/policy/Alarms/group/%v
+get_from_all: true
+get_no_id: true
+id_from_query_path: groups
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+mutex: true
+skip_minimum_test: true
+doc_category: Alerts
+res_description: This resource can manage a notification policy for device alarms and events.
+ds_description: This data source can read a notification policy for device alarms and events.
+attributes:
+  - model_name: groupName
+    tf_name: name
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    mandatory: true
+    requires_replace: true
+    string_min_length: 1
+    string_max_length: 200
+    description: Name of the policy, unique on the Crosswork cluster (also against system policies). The controller accepts letters, digits, spaces and the characters `- . _ :`
+    example: cwtest-dnp
+  - model_name: description
+    type: String
+    null_on_empty: true
+    string_max_length: 255
+    description: Description of the policy. The controller accepts letters, digits, spaces, line breaks and the characters `, - . _ :`
+    example: Critical alarms
+  - model_name: deviceGroup
+    tf_name: device_group
+    type: String
+    description: Id of the device group whose devices the policy applies to. Without it the policy applies to all devices
+    exclude_test: true
+  - model_name: filters
+    type: List
+    mandatory: true
+    min_list: 1
+    description: Filters of the alarms and events, an alarm or event is forwarded when it matches any filter. Each filter holds at least one of `severities`, `category` and `events`. A `category` needs `severities`
+    attributes:
+      - model_name: severities
+        type: Set
+        element_type: String
+        description: Severities of the filter, each one of `information`, `warning`, `minor`, `major` and `critical`
+        example: critical
+      - model_name: category
+        type: String
+        string_min_length: 1
+        string_max_length: 127
+        description: Category of the filter, one name. It needs `severities` and cannot hold a single quote or a backslash
+        exclude_test: true
+      - model_name: events
+        type: Set
+        element_type: String
+        description: Event types of the filter (the `eventTypeName` of the catalog). A value cannot hold a single quote or a backslash
+        exclude_test: true
+  - model_name: trapReceivers
+    tf_name: trap_receivers
+    type: Set
+    requires_replace: true
+    description: Trap receivers that get the notifications. A policy needs at least one trap or syslog receiver
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        description: Name of the trap receiver, as in `crosswork_trap_destination`. It cannot hold a single quote or a backslash
+        example: cwtest-dnp-trap
+        test_value: crosswork_trap_destination.dnp_test.name
+  - model_name: syslogReceivers
+    tf_name: syslog_receivers
+    type: Set
+    requires_replace: true
+    description: Syslog receivers that get the notifications. A policy needs at least one trap or syslog receiver
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        description: Name of the syslog receiver, as in `crosswork_syslog_destination`. It cannot hold a single quote or a backslash
+        example: cwtest-dnp-syslog
+        test_value: crosswork_syslog_destination.dnp_test.name
+
+test_prerequisites: |
+  resource "crosswork_trap_destination" "dnp_test" {
+    name                 = "cwtest-dnp-trap"
+    address              = "192.0.2.133"
+    community_wo         = "cwtest-community"
+    community_wo_version = 1
+  }
+
+  resource "crosswork_syslog_destination" "dnp_test" {
+    name    = "cwtest-dnp-syslog"
+    address = "192.0.2.134"
+  }

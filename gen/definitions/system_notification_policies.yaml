@@ -1,0 +1,93 @@
+---
+name: System Notification Policies
+rest_endpoint: /crosswork/alarm/v1/notificationpolicy/%v
+post_rest_endpoint: /crosswork/alarm/v1/notificationpolicy
+get_rest_endpoint: /crosswork/alarm/v1/notificationpolicy
+put_rest_endpoint: /crosswork/alarm/v1/notificationpolicy
+get_from_all: true
+get_no_id: true
+id_from_query_path: data
+put_no_id: true
+delete_no_id: true
+id_from_attribute: true
+mutex: true
+skip_minimum_test: true
+doc_category: Alerts
+res_description: This resource can manage a notification policy for system and network alarms and events.
+ds_description: This data source can read a notification policy for system and network alarms and events.
+attributes:
+  - model_name: groupName
+    tf_name: name
+    type: String
+    id: true
+    reference: true
+    reference_in_body: true
+    escape_reference_path: true
+    mandatory: true
+    requires_replace: true
+    string_min_length: 1
+    string_max_length: 200
+    description: Name of the policy, unique on the Crosswork cluster. The controller accepts letters, digits, spaces and the characters `- . _ :`
+    example: cwtest-policy
+  - model_name: description
+    type: String
+    null_on_empty: true
+    string_max_length: 255
+    description: Description of the policy. The controller accepts letters, digits, spaces, line breaks and the characters `, - . _ :`
+    example: Forward all alarms
+  - model_name: alarmType
+    type: String
+    value: System/Network
+    description: Type of the alarms of the policy
+  - model_name: criteria
+    type: String
+    mandatory: true
+    description: Filter of the alarms and events that the policy forwards, for example `*`, `severity=5` or `severity=1 and category=System`
+    example: '*'
+  - model_name: trapDestinations
+    tf_name: trap_receivers
+    type: Set
+    requires_replace: true
+    description: Trap receivers that get the notifications. A policy needs at least one trap or syslog receiver
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the trap receiver, as in `crosswork_trap_destination`
+        example: cwtest-anp-trap
+        test_value: crosswork_trap_destination.anp_test.name
+      - model_name: action
+        type: String
+        value: associate
+        description: Use of an existing receiver
+  - model_name: syslogDestinations
+    tf_name: syslog_receivers
+    type: Set
+    requires_replace: true
+    description: Syslog receivers that get the notifications. A policy needs at least one trap or syslog receiver
+    attributes:
+      - model_name: name
+        type: String
+        id: true
+        mandatory: true
+        description: Name of the syslog receiver, as in `crosswork_syslog_destination`
+        example: cwtest-anp-syslog
+        test_value: crosswork_syslog_destination.anp_test.name
+      - model_name: action
+        type: String
+        value: associate
+        description: Use of an existing receiver
+
+test_prerequisites: |
+  resource "crosswork_trap_destination" "anp_test" {
+    name                 = "cwtest-anp-trap"
+    address              = "192.0.2.131"
+    community_wo         = "cwtest-community"
+    community_wo_version = 1
+  }
+
+  resource "crosswork_syslog_destination" "anp_test" {
+    name    = "cwtest-anp-syslog"
+    address = "192.0.2.132"
+  }
