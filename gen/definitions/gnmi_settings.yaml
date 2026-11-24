@@ -12,7 +12,6 @@ data_source_no_id: true
 data_source_no_inputs: true
 mutex: true
 id_path: '!\"gnmi_settings\"'
-# The flags belong to the whole cluster, so the acceptance test changes them and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: System Settings

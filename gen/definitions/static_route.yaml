@@ -12,7 +12,6 @@ get_rest_endpoint: /crosswork/ztp/v1/staticroutes/query
 get_body: '{"filter":{}}'
 no_update: true
 mutex: true
-# The routes belong to the whole cluster, so the acceptance test creates one route from the documentation range and the destroy removes it.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: System Settings

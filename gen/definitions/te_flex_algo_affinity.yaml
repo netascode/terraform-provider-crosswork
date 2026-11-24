@@ -11,7 +11,6 @@ rest_endpoint: /crosswork/optima/api/v1/affinityMap
 get_rest_endpoint: /crosswork/optima/api/v1/affinityMap/flexAlgo
 no_update: true
 mutex: true
-# The affinities belong to the whole cluster, so the acceptance test creates one affinity and the destroy removes it.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: System Settings

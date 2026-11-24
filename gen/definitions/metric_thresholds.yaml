@@ -16,7 +16,6 @@ data_source_no_id: true
 data_source_no_inputs: true
 mutex: true
 id_path: '!\"metric_thresholds\"'
-# The thresholds belong to the whole cluster, so the acceptance test changes one metric and the destroy writes the defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: System Settings

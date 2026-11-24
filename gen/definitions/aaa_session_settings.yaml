@@ -20,7 +20,6 @@ data_source_no_id: true
 data_source_no_inputs: true
 mutex: true
 id_path: '!\"aaa_session_settings\"'
-# The settings belong to the whole cluster, so the acceptance test changes them and the destroy writes the documented defaults.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: AAA

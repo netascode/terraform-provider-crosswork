@@ -20,7 +20,6 @@ data_source_no_id: true
 data_source_no_inputs: true
 mutex: true
 id_path: '!\"topology_discovery_settings\"'
-# The settings belong to the whole cluster, so the acceptance test writes the three flags and the destroy writes the defaults, which are all off.
 skip_minimum_test: true
 test_tags: [SETTINGS]
 doc_category: System Settings
