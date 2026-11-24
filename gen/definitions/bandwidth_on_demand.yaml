@@ -1,0 +1,152 @@
+---
+name: Bandwidth On Demand
+rest_endpoint: /crosswork/optima/api/v1/functionPacks/bwod
+get_rest_endpoint: /crosswork/optima/api/v1/functionPacks/bwod/request
+get_no_id: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/optima/api/v1/functionPacks/bwod
+delete_body: '{"config":{"enable":false,"utilThreshold":80,"reoptInterval":60,"metricReoptHours":1,"metricReoptMins":30,"primaryObjective":"MAX_AVAIL_BW","lspTraffic":"MAX_MEASURED_REQUESTED","modelUpdateThrottle":0,"debugOpt":false,"debugOptMaxFiles":30,"optTimeEventThreshold":45,"allowedPolicyViolations":"LOOSE","optTimeLimit":60,"strictSids":false}}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"bandwidth_on_demand\"'
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Traffic Engineering
+res_description: This resource can manage the bandwidth on demand function pack of traffic engineering.
+ds_description: This data source can read the bandwidth on demand function pack of traffic engineering.
+attributes:
+  - model_name: enable
+    data_path: config
+    response_data_path: data.config.enable
+    tf_name: enable
+    type: Bool
+    default_value: false
+    description: Enables the bandwidth on demand function pack
+    example: false
+  - model_name: primaryObjective
+    data_path: config
+    response_data_path: data.config.primaryObjective
+    tf_name: primary_objective
+    type: String
+    enum_values: [MAX_AVAIL_BW, MIN_METRIC]
+    default_value: MAX_AVAIL_BW
+    description: Primary objective when optimizing policies
+    example: MIN_METRIC
+  - model_name: utilThreshold
+    data_path: config
+    response_data_path: data.config.utilThreshold
+    tf_name: link_utilization_threshold
+    type: Int64
+    min_int: 1
+    max_int: 100
+    default_value: 80
+    description: Interfaces whose utilization percentage exceeds this threshold are optimized
+    example: 85
+  - model_name: reoptInterval
+    data_path: config
+    response_data_path: data.config.reoptInterval
+    tf_name: reoptimization_interval
+    type: Int64
+    min_int: 0
+    max_int: 4294967295
+    default_value: 60
+    description: Time in seconds before policies are available to be re-optimized since the last path change
+    example: 61
+  - model_name: metricReoptHours
+    data_path: config
+    response_data_path: data.config.metricReoptHours
+    tf_name: metric_reoptimization_hours
+    type: Int64
+    min_int: 0
+    max_int: 23
+    default_value: 1
+    description: Hour of the day (0 to 23) to run the metric re-optimization on all BWoD provisioned policies
+    example: 2
+  - model_name: metricReoptMins
+    data_path: config
+    response_data_path: data.config.metricReoptMins
+    tf_name: metric_reoptimization_minutes
+    type: Int64
+    min_int: 0
+    max_int: 59
+    default_value: 30
+    description: Minute of the hour (0 to 59) to run the metric re-optimization on all BWoD provisioned policies
+    example: 15
+  - model_name: lspTraffic
+    data_path: config
+    response_data_path: data.config.lspTraffic
+    tf_name: sr_policy_traffic
+    type: String
+    enum_values: [MAX_MEASURED_REQUESTED, MEASURED]
+    default_value: MAX_MEASURED_REQUESTED
+    description: Method to determine the bandwidth associated with each SR policy when optimization is performed
+    example: MEASURED
+  - model_name: modelUpdateThrottle
+    data_path: config
+    response_data_path: data.config.modelUpdateThrottle
+    tf_name: model_update_throttle
+    type: Int64
+    min_int: 0
+    max_int: 4294967295
+    default_value: 0
+    description: Time in seconds to wait between model updates; 0 disables the throttle
+    example: 5
+  - model_name: optTimeEventThreshold
+    data_path: config
+    response_data_path: data.config.optTimeEventThreshold
+    tf_name: optimizer_event_threshold
+    type: Int64
+    min_int: 1
+    max_int: 4294967295
+    default_value: 45
+    description: If the optimizer runs longer than this number of seconds, an event is sent to the UI
+    example: 50
+  - model_name: optTimeLimit
+    data_path: config
+    response_data_path: data.config.optTimeLimit
+    tf_name: optimizer_run_time_limit
+    type: Int64
+    min_int: 1
+    max_int: 4294967295
+    default_value: 60
+    description: Maximum run time in seconds of the BWoD optimizer
+    example: 70
+  - model_name: allowedPolicyViolations
+    data_path: config
+    response_data_path: data.config.allowedPolicyViolations
+    tf_name: allowed_policy_violations
+    type: String
+    enum_values: [LOOSE, STRICT]
+    default_value: LOOSE
+    description: How BWoD acts when new policies are provisioned and policy violations are detected
+    example: STRICT
+  - model_name: strictSids
+    data_path: config
+    response_data_path: data.config.strictSids
+    tf_name: prefer_strict_sids
+    type: Bool
+    default_value: false
+    description: Prefer strict SIDs when deriving segment lists; required for compatibility with LCM
+    example: true
+  - model_name: debugOpt
+    data_path: config
+    response_data_path: data.config.debugOpt
+    tf_name: debug_optimizer
+    type: Bool
+    default_value: false
+    description: Save debug plan files to the filesystem
+    example: true
+  - model_name: debugOptMaxFiles
+    data_path: config
+    response_data_path: data.config.debugOptMaxFiles
+    tf_name: debug_optimizer_max_files
+    type: Int64
+    min_int: 1
+    max_int: 512
+    default_value: 30
+    description: Maximum number of debug plan file sets to save
+    example: 31

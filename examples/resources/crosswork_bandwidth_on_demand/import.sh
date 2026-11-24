@@ -1,0 +1,1 @@
+terraform import crosswork_bandwidth_on_demand.example "bandwidth_on_demand"
