@@ -1,0 +1,1 @@
+terraform import crosswork_local_congestion_mitigation_interface_thresholds.example "<domain_id>"

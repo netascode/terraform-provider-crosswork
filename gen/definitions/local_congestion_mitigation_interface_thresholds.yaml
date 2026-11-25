@@ -1,0 +1,60 @@
+---
+# hand-written:
+#   resource: create, read, update, delete
+#   data source: -
+#   model: toBody
+#   helpers: local_congestion_mitigation_interface_thresholds_logic.go
+#   tests: local_congestion_mitigation_interface_thresholds_stub_test.go, local_congestion_mitigation_interface_thresholds_logic_test.go, resource_crosswork_local_congestion_mitigation_interface_thresholds_unit_test.go
+#   why: the write takes constants the generator cannot send (merge, the errors of a row), an empty list cannot be written and is cleared by deleting the rows that were read, and a delete is refused whole when one row is missing
+name: Local Congestion Mitigation Interface Thresholds
+rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm/domain/updateInterfaceThresholds
+get_rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm/domain/interfaceThresholds
+get_body: '{"id":"{id}"}'
+get_no_id: true
+id_from_attribute: true
+put_create: true
+put_no_id: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm/domain/deleteInterfaceThresholds
+mutex: true
+skip_minimum_test: true
+test_tags: [OPTIMIZATION]
+doc_category: Traffic Engineering
+res_description: This resource can manage the per-interface utilization thresholds of one LCM domain.
+ds_description: This data source can read the per-interface utilization thresholds of one LCM domain.
+attributes:
+  - model_name: id
+    tf_name: domain_id
+    type: String
+    id: true
+    write_only: true
+    requires_replace: true
+    mandatory: true
+    description: LCM domain identifier
+    example: "32"
+  - model_name: addInts
+    response_data_path: data
+    tf_name: interface_thresholds
+    type: Set
+    description: The interfaces with their own utilization threshold; an empty list removes them all. Only interfaces of the IGP links of the domain are accepted, by the full interface name.
+    attributes:
+      - model_name: node
+        type: String
+        id: true
+        mandatory: true
+        description: Host name of the device that has the interface
+        example: build-router-1
+      - model_name: interface
+        type: String
+        id: true
+        mandatory: true
+        description: Full name of the interface, of an IGP link of the domain
+        example: GigabitEthernet0/0/0/14
+      - model_name: threshold
+        tf_name: utilization_threshold
+        type: Int64
+        min_int: 0
+        max_int: 100
+        mandatory: true
+        description: Utilization percentage at which the interface is considered congested; not below the hold margin of the domain
+        example: 75

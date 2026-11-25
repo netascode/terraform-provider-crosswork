@@ -1,0 +1,1 @@
+terraform import crosswork_demand_matrix_global_configuration.example "demand_matrix_global_configuration"

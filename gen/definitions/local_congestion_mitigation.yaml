@@ -1,0 +1,277 @@
+---
+name: Local Congestion Mitigation
+rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm
+get_rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm/domain/config
+get_body: '{"id":"{id}","default":false}'
+get_no_id: true
+id_from_attribute: true
+put_create: true
+put_no_id: true
+put_delete: true
+delete_no_id: true
+delete_rest_endpoint: /crosswork/optima/api/v1/functionPacks/lcm
+delete_body: '{"id":"{id}","config":{"enable":false,"autoRepairSolution":false,"stayInArea":false,"adjacencyHopType":"UNPROTECTED","utilThreshold":100,"utilHoldMargin":5,"color":2000,"profileId":0,"maxTteGroup":8,"delLsps":false,"includeAllInterfaces":false,"pceDispatchTimeout":180,"overprovisionFactor":0,"unevenEcmpTrafficThreshold":0,"throttleModeThreshold":5,"objective":"MIN_IGP_METRIC","operationMode":"MANUAL","congestionCheckInterval":900,"congestionCheckSuspensionInterval":600,"description":"LCM startup config","debugOpt":false,"debugOptMaxFiles":40,"nodeTagMaxSidDepth":[],"affinityConstraint":{"excludeAny":[],"includeAny":[],"includeAll":[]},"historyRetentionTime":30}}'
+data_source_no_inputs: false
+mutex: true
+skip_minimum_test: true
+test_tags: [OPTIMIZATION]
+doc_category: Traffic Engineering
+res_description: This resource can manage the local congestion mitigation configuration of one LCM domain.
+ds_description: This data source can read the local congestion mitigation configuration of one LCM domain.
+attributes:
+  - model_name: id
+    tf_name: domain_id
+    type: String
+    id: true
+    write_only: true
+    requires_replace: true
+    mandatory: true
+    description: LCM domain identifier
+    example: "200"
+  - model_name: enable
+    data_path: config
+    response_data_path: data.config.enable
+    tf_name: enable
+    type: Bool
+    default_value: false
+    description: Enables LCM for the domain
+    example: false
+  - model_name: color
+    data_path: config
+    response_data_path: data.config.color
+    tf_name: color
+    type: Int64
+    min_int: 1
+    max_int: 4294967294
+    default_value: 2000
+    description: Color assigned sequentially to tactical SR policies starting with this value
+    example: 2000
+  - model_name: utilThreshold
+    data_path: config
+    response_data_path: data.config.utilThreshold
+    tf_name: utilization_threshold
+    type: Int64
+    min_int: 0
+    max_int: 100
+    default_value: 100
+    description: Utilization percentage at which an interface is considered congested
+    example: 100
+  - model_name: utilHoldMargin
+    data_path: config
+    response_data_path: data.config.utilHoldMargin
+    tf_name: utilization_hold_margin
+    type: Int64
+    min_int: 0
+    max_int: 100
+    default_value: 5
+    description: Percentage that dampens the removal of deployed tactical SR policies
+    example: 5
+  - model_name: delLsps
+    data_path: config
+    response_data_path: data.config.delLsps
+    tf_name: delete_lsps
+    type: Bool
+    default_value: false
+    description: Delete all deployed tactical SR policies when LCM is disabled
+    example: false
+  - model_name: profileId
+    data_path: config
+    response_data_path: data.config.profileId
+    tf_name: profile_id
+    type: Int64
+    min_int: 0
+    max_int: 65534
+    default_value: 0
+    description: Profile ID assigned to all tactical SR policies; 0 assigns none
+    example: 0
+  - model_name: congestionCheckInterval
+    data_path: config
+    response_data_path: data.config.congestionCheckInterval
+    tf_name: congestion_check_interval
+    type: Int64
+    min_int: 60
+    max_int: 86400
+    default_value: 900
+    description: Interval in seconds used to evaluate the network for congestion
+    example: 900
+  - model_name: maxTteGroup
+    data_path: config
+    response_data_path: data.config.maxTteGroup
+    tf_name: max_tte_group
+    type: Int64
+    min_int: 1
+    max_int: 8
+    default_value: 8
+    description: Maximum number of tactical policies used to mitigate a single interface
+    example: 8
+  - model_name: includeAllInterfaces
+    data_path: config
+    response_data_path: data.config.includeAllInterfaces
+    tf_name: include_all_interfaces
+    type: Bool
+    default_value: false
+    description: Monitor congestion on all interfaces; false monitors the selected interfaces
+    example: false
+  - model_name: description
+    data_path: config
+    response_data_path: data.config.description
+    tf_name: description
+    type: String
+    string_min_length: 3
+    string_max_length: 256
+    default_value: LCM startup config
+    description: Description of the domain configuration
+    example: LCM startup config
+  - model_name: autoRepairSolution
+    data_path: config
+    response_data_path: data.config.autoRepairSolution
+    tf_name: auto_repair_solution
+    type: Bool
+    default_value: false
+    description: Detect and deploy changes automatically after network failures
+    example: false
+  - model_name: stayInArea
+    data_path: config
+    response_data_path: data.config.stayInArea
+    tf_name: stay_in_area
+    type: Bool
+    default_value: false
+    description: Restrict bypass paths to the mitigated OSPF area or ISIS level
+    example: false
+  - model_name: adjacencyHopType
+    data_path: config
+    response_data_path: data.config.adjacencyHopType
+    tf_name: adjacency_hop_type
+    type: String
+    enum_values: [UNPROTECTED, PROTECTED, UNPROTECTED_PREFERRED, PROTECTED_PREFERRED]
+    default_value: UNPROTECTED
+    description: Type of adjacency SID used when creating an SR policy
+    example: UNPROTECTED
+  - model_name: operationMode
+    data_path: config
+    response_data_path: data.config.operationMode
+    tf_name: operation_mode
+    type: String
+    enum_values: [MANUAL, AUTOMATED]
+    default_value: MANUAL
+    description: Operation mode of LCM; AUTOMATED needs gRPC on every device of the domain
+    example: MANUAL
+  - model_name: objective
+    data_path: config
+    response_data_path: data.config.objective
+    tf_name: objective
+    type: String
+    enum_values: [MIN_IGP_METRIC, MIN_TE_METRIC, MIN_DELAY]
+    default_value: MIN_IGP_METRIC
+    description: Path computation objective of the tactical SR policies
+    example: MIN_IGP_METRIC
+  - model_name: pceDispatchTimeout
+    data_path: config
+    response_data_path: data.config.pceDispatchTimeout
+    tf_name: pce_dispatch_timeout
+    type: Int64
+    min_int: 10
+    max_int: 300
+    default_value: 180
+    description: Maximum time in seconds to confirm the deployment of tactical SR policies
+    example: 180
+  - model_name: congestionCheckSuspensionInterval
+    data_path: config
+    response_data_path: data.config.congestionCheckSuspensionInterval
+    tf_name: congestion_check_suspension_interval
+    type: Int64
+    min_int: 600
+    max_int: 3600
+    default_value: 600
+    description: Seconds to suspend congestion detection after any tactical SR policy change
+    example: 600
+  - model_name: overprovisionFactor
+    data_path: config
+    response_data_path: data.config.overprovisionFactor
+    tf_name: overprovision_factor
+    type: Int64
+    min_int: 0
+    max_int: 10
+    default_value: 0
+    description: Percentage deducted from interface thresholds to derive the effective threshold
+    example: 0
+  - model_name: unevenEcmpTrafficThreshold
+    data_path: config
+    response_data_path: data.config.unevenEcmpTrafficThreshold
+    tf_name: uneven_ecmp_traffic_threshold
+    type: Int64
+    min_int: 0
+    max_int: 100
+    default_value: 0
+    description: Sensitivity percentage to detect uneven traffic across solution bypass tunnels
+    example: 0
+  - model_name: throttleModeThreshold
+    data_path: config
+    response_data_path: data.config.throttleModeThreshold
+    tf_name: throttle_mode_threshold
+    type: Int64
+    min_int: 0
+    max_int: 10
+    default_value: 5
+    description: Solution oscillations per hour that put the solution in the PAUSED state; 0 disables detection
+    example: 5
+  - model_name: historyRetentionTime
+    data_path: config
+    response_data_path: data.config.historyRetentionTime
+    tf_name: history_retention_time
+    type: Int64
+    min_int: 1
+    max_int: 90
+    default_value: 30
+    description: Days the collected data is retained
+    example: 30
+  - model_name: debugOpt
+    data_path: config
+    response_data_path: data.config.debugOpt
+    tf_name: debug_opt
+    type: Bool
+    default_value: false
+    description: Save debug plan files and set the log level to debug
+    example: false
+  - model_name: debugOptMaxFiles
+    data_path: config
+    response_data_path: data.config.debugOptMaxFiles
+    tf_name: debug_opt_max_files
+    type: Int64
+    min_int: 1
+    max_int: 512
+    default_value: 40
+    description: Maximum number of debug plan file sets to save
+    example: 40
+  - model_name: includeAny
+    data_path: config.affinityConstraint
+    response_data_path: data.config.affinityConstraint.includeAny.#.bitPosition
+    tf_name: affinity_include_any
+    type: List
+    element_type: String
+    description: Bit positions of the link affinities of the include any constraint
+    example: "30"
+  - model_name: excludeAny
+    data_path: config.affinityConstraint
+    response_data_path: data.config.affinityConstraint.excludeAny.#.bitPosition
+    tf_name: affinity_exclude_any
+    type: List
+    element_type: String
+    description: Bit positions of the link affinities of the exclude any constraint
+    example: "30"
+  - model_name: includeAll
+    data_path: config.affinityConstraint
+    response_data_path: data.config.affinityConstraint.includeAll.#.bitPosition
+    tf_name: affinity_include_all
+    type: List
+    element_type: String
+    description: Bit positions of the link affinities of the include all constraint
+    example: "30"
+  - model_name: nodeTagMaxSidDepth.0
+    data_path: config
+    response_data_path: data.config.nodeTagMaxSidDepth|@join
+    tf_name: node_tag_max_sid_depth
+    type: Map
+    element_type: String
+    description: Maximum SID depth (0 to 16) by device tag, written as a text number
+    example: '{ GRPC_MSL = "10" }'

@@ -1,0 +1,36 @@
+---
+name: Demand Matrix Domain
+rest_endpoint: /crosswork/optima/api/v1/enableDdm
+get_rest_endpoint: /crosswork/optima/api/v1/getDdmDomains
+get_no_id: true
+get_from_all: true
+id_from_query_path: domains
+id_from_attribute: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_rest_endpoint: /crosswork/optima/api/v1/enableDdm
+delete_no_id: true
+delete_body: '{"domainId":"{id}","enable":false}'
+mutex: true
+skip_minimum_test: true
+test_tags: [OPTIMIZATION]
+doc_category: Traffic Engineering
+res_description: This resource can enable the demand matrix of one domain. The controller creates the domains, so the domain must exist.
+ds_description: This data source can read the demand matrix state of one domain.
+attributes:
+  - model_name: domainId
+    tf_name: domain_id
+    type: String
+    id: true
+    requires_replace: true
+    mandatory: true
+    description: Domain identifier
+    example: "32"
+  - model_name: enable
+    response_data_path: enabled
+    tf_name: enable
+    type: Bool
+    default_value: false
+    description: Enables the demand matrix of the domain
+    example: true

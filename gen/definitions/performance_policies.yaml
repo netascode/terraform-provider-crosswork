@@ -5,6 +5,9 @@
 #   model: toBody, fromBody, updateFromBody
 #   helpers: performance_policies_logic.go
 #   tests: performance_policies_logic_test.go plus performance_policies_test.go
+#   why: the controller keeps the targets of a policy as one comma separated string (as sent, not sorted or trimmed), names a
+#   device by uuid where the module uses its inventory id, holds the contact inside a JSON tag, and knows a policy by a number
+#   where the user knows its name. No generator key expresses these conversions, so the model and the id lookup are hand-written.
 name: Performance Policies
 rest_endpoint: /crosswork/performance/v1/policies
 id_path: monitoringPolicy.id

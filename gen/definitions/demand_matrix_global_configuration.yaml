@@ -1,0 +1,58 @@
+---
+name: Demand Matrix Global Configuration
+rest_endpoint: /crosswork/optima/api/v1/setDdmGlobalConfigs
+get_rest_endpoint: /crosswork/optima/api/v1/getDdmGlobalConfigs
+get_body: '{}'
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+delete_body: '{"configs":{"computeCadence":15,"debug":false,"minDemandTraffic":0,"maxPlanFiles":1}}'
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"demand_matrix_global_configuration\"'
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: Traffic Engineering
+res_description: This resource can manage the global configuration of the demand matrix.
+ds_description: This data source can read the global configuration of the demand matrix.
+attributes:
+  - model_name: computeCadence
+    data_path: configs
+    response_data_path: configs.computeCadence
+    tf_name: computation_cadence
+    type: Int64
+    min_int: 15
+    max_int: 2147483647
+    default_value: 15
+    description: Interval in minutes at which the demand matrix is computed
+    example: 30
+  - model_name: minDemandTraffic
+    data_path: configs
+    response_data_path: configs.minDemandTraffic
+    tf_name: minimum_demand_traffic
+    type: Float64
+    min_float: 0
+    default_value: 0
+    description: Demands with traffic below this value in Kbps are excluded from the demand matrix
+    example: 100
+  - model_name: debug
+    data_path: configs
+    response_data_path: configs.debug
+    tf_name: debug_mode
+    type: Bool
+    default_value: false
+    description: Enables the debug optimizer
+    example: true
+  - model_name: maxPlanFiles
+    data_path: configs
+    response_data_path: configs.maxPlanFiles
+    tf_name: debug_max_plan_files
+    type: Int64
+    min_int: 1
+    max_int: 100
+    default_value: 1
+    description: Maximum number of debug plan files to save
+    example: 5
