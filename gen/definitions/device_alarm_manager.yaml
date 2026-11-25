@@ -1,0 +1,34 @@
+---
+# hand-written:
+#   resource: create, update, delete
+#   data source: -
+#   model: toBody, fromBody, updateFromBody
+#   helpers: device_alarm_manager_logic.go
+#   tests: device_alarm_manager_test.go (offline tests of the body, the read and the order of the calls)
+#   why: the controller keeps one flat object with a key `alarmManager/<device model>` for each of its device models, silently ignores a key it does not know (and a key without the prefix), and merges what a write sends, so a write checks the names against a read first, adds the prefix, sets a name that left the model to false and a destroy sets every model to false
+name: Device Alarm Manager
+rest_endpoint: /crosswork/alarm/v1/manager/settings
+get_rest_endpoint: /crosswork/alarm/v1/manager/settings
+get_no_id: true
+post_update: true
+put_no_id: true
+post_delete: true
+delete_no_id: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"device_alarm_manager\"'
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: System Settings
+res_description: This resource can manage the device alarm manager of alarms and events.
+ds_description: This data source can read the device alarm manager of alarms and events.
+attributes:
+  - model_name: models
+    type: Map
+    element_type: Bool
+    mandatory: true
+    allow_import_changes: true
+    description: Enabled state by device model, for example `Cisco 8201 Router`
+    map_key_example: Cisco ASR 9010 Router
+    example: '{ "Cisco ASR 9010 Router" = true, "Cisco ASR 9006 Router" = false }'

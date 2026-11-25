@@ -1,0 +1,1 @@
+terraform import crosswork_device_alarm_manager.example "device_alarm_manager"

@@ -87,7 +87,11 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 				{{- if isListSet .}}
 				ElementType:         types.{{.ElementType}}Type,
                 {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
+				{{- if .ElementType}}
+				ElementType:         types.{{.ElementType}}Type,
+				{{- else}}
 				ElementType:         types.StringType,
+				{{- end}}
 				{{- end}}
 				{{- if and (not $.DataSourceNoInputs) (or $localId (and (or .Reference .QueryParam .GetQueryParam) (not .DataSourceQuery)))}}
 				Required:            true,
@@ -107,7 +111,11 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 							{{- if isListSet .}}
 							ElementType:         types.{{.ElementType}}Type,
                             {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
+							{{- if .ElementType}}
+							ElementType:         types.{{.ElementType}}Type,
+							{{- else}}
 							ElementType:         types.StringType,
+							{{- end}}
 							{{- end}}
 							Computed:            true,
                             {{- if isNestedListSetMap .}}
@@ -120,7 +128,11 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 										{{- if isListSet .}}
 										ElementType:         types.{{.ElementType}}Type,
                                         {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
+										{{- if .ElementType}}
+										ElementType:         types.{{.ElementType}}Type,
+										{{- else}}
 										ElementType:         types.StringType,
+										{{- end}}
 										{{- end}}
 										Computed:            true,
                                         {{- if isNestedListSetMap .}}
@@ -133,7 +145,11 @@ func (d *{{camelCase .Name}}DataSource) Schema(ctx context.Context, req datasour
 													{{- if isListSet .}}
 													ElementType:         types.{{.ElementType}}Type,
                                                     {{- else if and (eq .Type "Map") (not (isNestedMap .))}}
+													{{- if .ElementType}}
+													ElementType:         types.{{.ElementType}}Type,
+													{{- else}}
 													ElementType:         types.StringType,
+													{{- end}}
 													{{- end}}
 													Computed:            true,
 	                                        {{- if isNestedListSetMap .}}
