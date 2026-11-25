@@ -1,0 +1,1 @@
+terraform import crosswork_alarm_severities.example "alarm_severities"

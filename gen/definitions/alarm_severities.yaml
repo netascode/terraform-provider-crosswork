@@ -1,0 +1,52 @@
+---
+# hand-written:
+#   resource: create, update
+#   data source: -
+#   model: imports, toBody, fromBody, updateFromBody, isNull
+#   helpers: alarm_severities_logic.go
+#   tests: alarm_severities_test.go (the grouping, the unknown names, the hidden types and the read), alarm_severities_stub_test.go with resource_crosswork_alarm_severities_unit_test.go and data_source_crosswork_alarm_severities_unit_test.go (the calls and their order against a stub), alarm_severities_lifecycle_test.go (changes on a lab, written back afterwards), and the acceptance test of the data source, which finds its row by name
+#   why: the catalog of 1300 alarm and event types is fixed and each type is written by name in a call per value, so a write reads the catalog, refuses unknown names and severities of hidden types before any call, groups the names by value and sends only what differs; an import reads no row, and a destroy leaves the values, because the controller has no default to return to
+name: Alarm Severities
+rest_endpoint: /crosswork/alarm/v1/autoclear
+get_rest_endpoint: /crosswork/alarm/v1/autoclear?completeEventList=true
+get_no_id: true
+post_update: true
+put_no_id: true
+no_delete: true
+data_source_no_id: true
+data_source_no_inputs: true
+mutex: true
+id_path: '!\"alarm_severities\"'
+skip_minimum_test: true
+test_tags: [SETTINGS]
+doc_category: System Settings
+res_description: This resource can manage the severity and the auto clear time of the alarm and event types.
+ds_description: This data source can read the severity and the auto clear time of every alarm and event type.
+attributes:
+  - model_name: severities
+    type: List
+    mandatory: true
+    min_list: 1
+    allow_import_changes: true
+    description: The alarm and event types to manage, by the name of the Severity and auto clear page. A type that is not listed keeps its values, and so does a value that a row leaves out
+    example: '[{ name = "L2-ELMI-4-AIPC", severity = "minor", auto_clear_minutes = 1440 }]'
+    attributes:
+      - model_name: name
+        type: String
+        mandatory: true
+        string_min_length: 1
+        string_max_length: 255
+        description: Name of the alarm or event type, as the Name column of the Severity and auto clear page shows it. It is case-sensitive
+        example: L2-ELMI-4-AIPC
+      - model_name: severity
+        type: String
+        enum_values: [critical, major, minor, warning, information]
+        description: Severity of the type. Crosswork ignores a severity for the few types that the page does not list, and the apply refuses it
+        example: minor
+      - model_name: autoClearMinutes
+        tf_name: auto_clear_minutes
+        type: Int64
+        min_int: 5
+        max_int: 599940
+        description: Minutes after which Crosswork clears the alarm. Up to 55 a multiple of 5, from 60 a multiple of 60. Crosswork cannot return to the built-in value, so write the value you want
+        example: 1440
